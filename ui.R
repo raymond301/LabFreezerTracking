@@ -1,11 +1,30 @@
-library(shiny)
-library(shinydashboard)
+#######################################################	
+# Define general layout tag list	
+#######################################################
 
-# Define UI for application that draws a histogram
-shinyUI(fluidPage(
-    dashboardPage(skin = "green", 
-        dashboardHeader(title = "Biospecimen Tracking"),
-        dashboardSidebar(),
-        dashboardBody()
+headerTagList <- list(	
+    tags$style(type = "text/css", ".navbar .navbar-nav {float: right; font-size: 14px} .navbar .navbar-nav li a {font-size: 14px} .nav-tabs {font-size: 12px}"),
+    tags$base(target = "_blank")	
+)
+
+footerTagList <- list(
+    tags$footer(id = "myFooter",
+                shiny::includeHTML("footer.html")
     )
-))
+)
+
+#######################################################
+# Define the full user-interface
+#######################################################
+
+ui <- navbarPage(
+    title = strong("Biospecimen Tracking"), selected = "Home",	
+    tabPanel("Home", homepage, icon = icon("home")),	
+    tabPanel("About", aboutpage, icon = icon("info-circle")),	
+    header = headerTagList,	
+    footer = footerTagList,
+    collapsible = TRUE,	inverse = TRUE,
+    windowTitle = "Database"
+)
+
+shinyUI(ui)
