@@ -31,6 +31,8 @@ homepage <- dashboardPage(
     tabItems(
       tabItem(
         tabName = "dashboard",
+        h1("Welcome to the Freezer App"),
+        h5("Welcome to the Freezer App but smaller")
       ),
       tabItem(
         tabName = "tab_extra",
