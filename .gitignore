@@ -1,5 +1,8 @@
 # Project Specific Data Files
 data/*
+*.exe
+*.def
+*.dll
 
 # MacOS Navigation
 .DS_Store
