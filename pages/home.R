@@ -15,7 +15,7 @@ homepage <- dashboardPage(
                  icon = icon("cog")
                ),
                menuSubItem(
-                 "Add Biospecimen",
+                 "Add Blood Draw",
                  tabName = "task_2",
                  icon = icon("cog")
                )
@@ -46,9 +46,9 @@ homepage <- dashboardPage(
                     fill = TRUE, icon = icon("book")),
             infoBox("Patients:", 81, width = 3, color = "yellow",
                     fill = TRUE, icon = icon("address-card")),
-            infoBox("Blood Draws:", 287, width = 3, color = "blue",
+            infoBox("Blood Draws:", 287, width = 3, color = "red",
                     fill = TRUE, icon = icon("syringe")),
-            infoBox("Freezer Slots:", 1197, width = 3, color = "red",
+            infoBox("Freezer Slots:", 1197, width = 3, color = "blue",
                     fill = TRUE, icon = icon("vial")),
           ),
         ),
@@ -68,11 +68,11 @@ homepage <- dashboardPage(
           ),
           box(
             width = 6,
-            title = "Operation #2",
+            title = "Add Blood Draw",
             solidHeader = TRUE, collapsible = TRUE,
             box(
               width = 12,
-              p("A brief explanation of what is in operation 2")
+              p("This module is for adding a new blood draw event to the database")
               ),
             actionButton(inputId = "changeTask2", label = "Open Module")
           )
@@ -94,7 +94,58 @@ homepage <- dashboardPage(
       #Sample pages for the other tabs
       tabItem(
         tabName = "task_1",
-        h1("Add Patient")
+        
+        fluidPage(
+          
+        h3("Add New Patient"),
+        
+        box(
+          width = 12,
+          fluidRow(
+            box(
+              width = 4,
+              textInput("patientName", label = "Patient Name", placeholder = "Enter Patient Last Name..."),
+            ),
+            box(
+              width = 4,
+              dateInput("birthDate", label = "Birth Date (MM/DD/YYYY)", format = "m-d-yyyy")
+            ),
+            box(
+              width = 4,
+              numericInput("clinicalId", label = "Clinical ID Number", value = NULL)
+            )
+          ),
+          fluidRow(
+            box(
+              width = 4,
+              radioButtons(inputId = "mortality", label = "Mortality Status:", 
+                           choices = c("Alive" = "A", "Dead" = "D", "Unknown" = "U"), selected = "U")
+            ),
+            box(
+              width = 4,
+              radioButtons(inputId = "gender", label = "Gender:", 
+                           choices = c("Male" = "M", "Female" = "F", "Unknown/Other" = "U"), selected = "U")
+            ),
+            box(
+              width = 4,
+              textInput("clinicalId2", label = "Second Clinical ID/External ID (optional)", 
+                        placeholder = "Enter Second Clinical ID Number...")
+            )  
+          ),
+          fluidRow(
+            box(
+              width = 4,
+              dateInput(inputId = "deathDate", label = "Death Date (MM/DD/YYYY)", format = "m-d-yyyy")
+            ),
+            box(
+              width = 4,
+              radioButtons(inputId = "vipStatus", label = "Flag as VIP:", 
+                           choices = c("Yes" = "Y", "No" = "N"), selected = "N")
+            )
+          ),
+          actionButton(inputId = "addPatient", label = "Submit")
+        )
+        )
       ),
       tabItem(
         tabName = "task_2",

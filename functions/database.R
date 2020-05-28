@@ -1,5 +1,7 @@
 databaseFile <- "data/labdata.db"
+library(RSQLite)
 con <- dbConnect(drv=RSQLite::SQLite(), dbname=databaseFile)
 
 # get a list of all tables inside this dataabase
 dbListTables(con)
+myTest <- dbGetQuery(con, "select * from patient")
