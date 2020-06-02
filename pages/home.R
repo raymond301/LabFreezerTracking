@@ -59,7 +59,7 @@ homepage <- dashboardPage(
           box(
             width = 6,
             title = "Add Patient",
-            solidHeader = TRUE, collapsible = TRUE,
+            solidHeader = TRUE, collapsible = TRUE, 
             box(
               width = 12,
               p("This module is for adding a new patient to the database")
@@ -69,7 +69,7 @@ homepage <- dashboardPage(
           box(
             width = 6,
             title = "Add Blood Draw",
-            solidHeader = TRUE, collapsible = TRUE,
+            solidHeader = TRUE, collapsible = TRUE, 
             box(
               width = 12,
               p("This module is for adding a new blood draw event to the database")
@@ -81,7 +81,7 @@ homepage <- dashboardPage(
           box(
             width = 6,
             title = "Data Description",
-            solidHeader = TRUE, collapsible = TRUE,
+            solidHeader = TRUE, collapsible = TRUE, 
             box(
               width = 12,
               p("Description of data")
@@ -101,46 +101,62 @@ homepage <- dashboardPage(
         
         box(
           width = 12,
+          background = "blue",
           fluidRow(
             box(
               width = 4,
-              textInput("patientName", label = "Patient Name", placeholder = "Enter Patient Last Name..."),
+              background = "blue",
+              textInput(inputId = "patientName", label = "Patient Name", placeholder = "Enter Patient Last Name..."),
             ),
             box(
               width = 4,
-              dateInput("birthDate", label = "Birth Date (MM/DD/YYYY)", format = "m-d-yyyy")
+              background = "blue",
+              dateInput(inputId = "birthDate", label = "Birth Date (MM/DD/YYYY)", format = "m/d/yyyy")
             ),
             box(
               width = 4,
-              numericInput("clinicalId", label = "Clinical ID Number", value = NULL)
+              background = "blue",
+              numericInput(inputId = "clinicalId", label = "Clinical ID Number", value = NULL)
             )
           ),
           fluidRow(
             box(
               width = 4,
+              background = "blue",
               radioButtons(inputId = "mortality", label = "Mortality Status:", 
                            choices = c("Alive" = "A", "Dead" = "D", "Unknown" = "U"), selected = "U")
             ),
             box(
               width = 4,
+              background = "blue",
               radioButtons(inputId = "gender", label = "Gender:", 
                            choices = c("Male" = "M", "Female" = "F", "Unknown/Other" = "U"), selected = "U")
             ),
             box(
               width = 4,
-              textInput("clinicalId2", label = "Second Clinical ID/External ID (optional)", 
+              background = "blue",
+              textInput(inputId = "clinicalId2", label = "Second Clinical ID/External ID (optional)", 
                         placeholder = "Enter Second Clinical ID Number...")
             )  
           ),
           fluidRow(
             box(
               width = 4,
-              dateInput(inputId = "deathDate", label = "Death Date (MM/DD/YYYY)", format = "m-d-yyyy")
+              background = "blue",
+              dateInput(inputId = "deathDate", label = "Death Date (MM/DD/YYYY)", format = "m/d/yyyy")
             ),
             box(
               width = 4,
+              background = "blue",
               radioButtons(inputId = "vipStatus", label = "Flag as VIP:", 
                            choices = c("Yes" = "Y", "No" = "N"), selected = "N")
+            ),
+            box(
+              width = 4,
+              background = "blue",
+              textAreaInput(inputId = "patientComments", label = "Comments (optional)", rows = 2,
+                            placeholder = "Add additional comments...")
+              
             )
           ),
           actionButton(inputId = "addPatient", label = "Submit")
@@ -149,7 +165,220 @@ homepage <- dashboardPage(
       ),
       tabItem(
         tabName = "task_2",
-        h1("Add Biospecimen")
+        
+        fluidPage(
+        
+        h3("Add Blood Draw Event"),
+        
+        box(
+          width = 12,
+          background = "blue",
+          fluidRow(
+            box(
+              width = 6,
+              background = "blue",
+              numericInput(inputId = "clinicalId_bloodDraw", label = "Patient Clinical Number", value = NULL)
+            ),
+            box(
+              width = 6,
+              background = "blue",
+              textInput(inputId = "studyID", label = "Study ID")
+            )
+          ),
+          fluidRow(
+            box(
+              width = 6,
+              background = "blue",
+              dateInput(inputId = "drawDate", label = "Date of Draw", format = "m/d/yyyy")
+            ),
+            box(
+              width = 6,
+              background = "blue",
+              textInput(inputId = "drawTime", label = "Time of Draw", placeholder = "HH:MM")
+            )
+          ),
+          fluidRow(
+            box(
+              width = 6,
+              background = "blue",
+              dateInput(inputId = "processDate", label = "Date of Processing", format = "m/d/yyyy")
+            ),
+            box(
+              width = 6,
+              background = "blue",
+              textInput(inputId = "processTime", label = "Time of Processing", placeholder = "HH:MM")
+            )
+          ),
+          h4("Total Amount Received:"),
+          fluidRow(
+            box(
+              width = 6,
+              background = "blue",
+              numericInput(inputId = "totalTubes", label = "Number of tubes", value = 0)
+            ),
+            box(
+              width = 6,
+              background = "blue",
+              numericInput(inputId = "totalVolume", label = "Total volume (mL)", value = 0)
+            )
+          ),
+          
+          
+          h4("Tube Types:"),
+          
+          fluidRow(
+            box(
+              width = 6,
+              title = "Sodium Heparin",
+              solidHeader = TRUE, collapsible = TRUE, collapsed = TRUE,
+              fluidRow(
+                box(
+                  width = 6,
+                  title = "Number of Tubes",
+                  numericInput(inputId = "sodiumTubes", label = NULL, value = 0)
+                ),
+                box(
+                  width = 6,
+                  title = "Total Volume (mL)",
+                  numericInput(inputId = "sodiumVolume", label = NULL, value = 0)
+                )
+              )
+            ),
+            box(
+              width = 6,
+              title = "EDTA",
+              solidHeader = TRUE, collapsible = TRUE, collapsed = TRUE,
+              fluidRow(
+                box(
+                  width = 6,
+                  title = "Number of Tubes",
+                  numericInput(inputId = "EDTATubes", label = NULL, value = 0)
+                ),
+                box(
+                  width = 6,
+                  title = "Total Volume (mL)",
+                  numericInput(inputId = "EDTAVolume", label = NULL, value = 0)
+                )
+              )
+            ),
+          ),
+          
+          fluidRow(
+            box(
+              width = 6,
+              title = "Whole Blood",
+              solidHeader = TRUE, collapsible = TRUE, collapsed = TRUE,
+              fluidRow(
+                box(
+                  width = 6,
+                  title = "Number of Tubes",
+                  numericInput(inputId = "wholeTubes", label = NULL, value = 0)
+                ),
+                box(
+                  width = 6,
+                  title = "Total Volume (mL)",
+                  numericInput(inputId = "wholeVolume", label = NULL, value = 0)
+                )
+              )
+            ),
+            box(
+              width = 6,
+              title = "Streck",
+              solidHeader = TRUE, collapsible = TRUE, collapsed = TRUE,
+              fluidRow(
+                box(
+                  width = 6,
+                  title = "Number of Tubes",
+                  numericInput(inputId = "streckTubes", label = NULL, value = 0)
+                ),
+                box(
+                  width = 6,
+                  title = "Total Volume (mL)",
+                  numericInput(inputId = "streckVolume", label = NULL, value = 0)
+                )
+              )
+            ),
+          ),
+          
+          fluidRow(
+            box(
+              width = 6,
+              title = "ACD",
+              solidHeader = TRUE, collapsible = TRUE, collapsed = TRUE,
+              fluidRow(
+                box(
+                  width = 6,
+                  title = "Number of Tubes",
+                  numericInput(inputId = "ACDTubes", label = NULL, value = 0)
+                ),
+                box(
+                  width = 6,
+                  title = "Total Volume (mL)",
+                  numericInput(inputId = "ACDVolume", label = NULL, value = 0)
+                )
+              )
+            ),
+            box(
+              width = 6,
+              title = "Other",
+              solidHeader = TRUE, collapsible = TRUE, collapsed = TRUE,
+              fluidRow(
+                box(
+                  width = 6,
+                  title = "Number of Tubes",
+                  numericInput(inputId = "otherTubes", label = NULL, value = 0)
+                ),
+                box(
+                  width = 6,
+                  title = "Total Volume (mL)",
+                  numericInput(inputId = "otherVolume", label = NULL, value = 0)
+                )
+              )
+            ),
+          ),
+          
+          h4("Processed Plasma Tubes:"),
+          
+          fluidRow(
+            box(
+              width = 6,
+              background = "blue",
+              numericInput(inputId = "plasmaTubes", label = "Number of Tubes", value = 0)
+            ),
+            box(
+              width = 6,
+              background = "blue",
+              numericInput(inputId = "plasmaVolume", label = "Total Volume (mL)", value = 0)
+            )
+          ),
+          
+          h4("Processed Cell Tubes:"),
+          
+          fluidRow(
+            box(
+              width = 6,
+              background = "blue",
+              numericInput(inputId = "cellTubes", label = "Number of Tubes", value = 0)
+            ),
+            box(
+              width = 6,
+              background = "blue",
+              numericInput(inputId = "cellVolume", label = "Total Volume", value = 0)
+            )
+          ),
+          
+          fluidRow(
+            box(
+              width = 6,
+              background = "blue",
+              textAreaInput(inputId = "drawComments", label = "Comments", rows = 2,
+                            placeholder = "Add additional comments...")
+            )
+          ),
+          actionButton(inputId = "addDraw", label = "Submit")
+          
+        )
+        )
       ),
       tabItem(
         tabName = "datainfo",
