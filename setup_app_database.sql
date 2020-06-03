@@ -9,8 +9,10 @@ deceased VARCHAR(1),
 vip_flag VARCHAR(1),
 last_name TEXT,
 sex VARCHAR(1),
+num_live_births INTEGER,
 date_of_birth DATE,
-date_of_death DATE 
+date_of_death DATE,
+init_clinic_location VARCHAR(1)
 );
 CREATE INDEX [IDX_records_id] ON "patient" ([record_id]);
 

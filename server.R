@@ -13,4 +13,7 @@ shinyServer(function(input, output, session) {
   observeEvent(input$changeDataInfo, {
     shinydashboard::updateTabItems(session, "explorertabs", "datainfo")
   })
+  
+  
+  
 })
