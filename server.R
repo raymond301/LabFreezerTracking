@@ -42,14 +42,16 @@ shinyServer(function(input, output, session) {
             box(width = 6,title = "Plasma", solidHeader = TRUE, collapsible = TRUE,collapsed = TRUE,
                 fluidRow(
                   lapply(1:nrow(justPlasma), function(i) {
-                      box(width = 5,title = paste("Box:",justPlasma$box[i]), solidHeader = TRUE, collapsible = TRUE,collapsed = TRUE)
+                      box(width = 5,title = paste("Box:",justPlasma$box[i]), solidHeader = TRUE, collapsible = TRUE,collapsed = TRUE,
+                          p( getBoxSummary_lvl1(myRacks[i],"Plasma",justPlasma$box[i]) ) )
                     }
                   )
                 )),
             box(width = 6,title = "Cells", solidHeader = TRUE, collapsible = TRUE,collapsed = TRUE,
                 fluidRow(
                   lapply(1:nrow(justCells), function(i) {
-                    box(width = 5,title = paste("Box:",justCells$box[i]), solidHeader = TRUE, collapsible = TRUE,collapsed = TRUE)
+                    box(width = 5,title = paste("Box:",justCells$box[i]), solidHeader = TRUE, collapsible = TRUE,collapsed = TRUE,
+                        p( getBoxSummary_lvl1(myRacks[i],"Cells",justCells$box[i]) ) )
                   }
                   )
                 ))

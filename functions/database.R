@@ -27,9 +27,7 @@ get_StudyList <- function(){
 ###### Find by Id Lookup Functions ######
 
 getBloodDraws_ByPatientID <- function(pid){
-  return(
-    dbGetQuery(fCon, paste0("SELECT * FROM blood_draw WHERE record_id = \"",pid,"\""))
-    )
+  return( dbGetQuery(fCon, paste0("SELECT * FROM blood_draw WHERE record_id = \"",pid,"\"")) )
 }
 
 getRacks_ByStudy <- function(sid){
@@ -40,6 +38,9 @@ getBoxes_ByRack <- function(rid){
   return( dbGetQuery(fCon, paste0("SELECT DISTINCT box,box_type FROM freezer_slot WHERE rack = \"",rid,"\"")) )
 }
 
+getBox_byIDs <- function(rid, tid, bid){
+  return( dbGetQuery(fCon, paste0("SELECT * FROM freezer_slot WHERE rack = \"",rid,"\" AND box = \"",bid,"\" AND box_type = \"",tid,"\";")) )
+}
 
 ###### Whole Data tables ######
 
