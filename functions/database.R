@@ -3,7 +3,7 @@ freezerDBC <- "data/storagedata.db"
 pCon <- dbConnect(drv=RSQLite::SQLite(), dbname=patientDBC)
 fCon <- dbConnect(drv=RSQLite::SQLite(), dbname=freezerDBC)
 
-###### Front Page Counts ######
+###### Summary Counts ######
 get_StudyCount <- function(){
   return( dbGetQuery(fCon, "SELECT COUNT(DISTINCT study_name) from blood_draw;")[[1]] )
 }
@@ -18,14 +18,25 @@ get_FreezerSlotCount <- function(){
 }
 
 
+###### Unique lists for Dropdown menus ######
+get_StudyList <- function(){
+  return( sort(dbGetQuery(fCon, "SELECT DISTINCT study_name from blood_draw;")$study_name) )
+}
+
+
+###### Find by Id Lookup Functions ######
+
+getBloodDraws_ByPatientID <- function(pid){
+  return(dbGetQuery(fCon, paste0("SELECT * FROM blood_draw WHERE record_id = \"",pid,"\"")))
+}
+
+
+###### Whole Data tables ######
 
 getPatients_All <- function(){
   return(dbGetQuery(pCon, "SELECT * FROM patient"))
 } 
 
-getBloodDraws_ByPatientID <- function(pid){
-  return(dbGetQuery(fCon, paste0("SELECT * FROM blood_draw WHERE record_id = \"",pid,"\"")))
-}
 
 # get a list of all tables inside this dataabase
 # dbListTables(con)

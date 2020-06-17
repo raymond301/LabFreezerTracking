@@ -20,6 +20,7 @@ footerTagList <- list(
 ui <- navbarPage(
     title = strong("Biospecimen Tracking"), selected = "Home",	
     tabPanel("Home", homepage, icon = icon("home")),	
+    tabPanel("Freezer", freezerpage, icon = icon("clipboard")),	
     tabPanel("About", aboutpage, icon = icon("info-circle")),	
     header = headerTagList,	
     footer = footerTagList,

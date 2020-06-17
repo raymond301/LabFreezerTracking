@@ -15,5 +15,7 @@ Using SQLite3 for persistent data storage & management. [Tutorial](https://www.g
 2. ....TBD...
 
 `sqlite> .header on`
+
 `sqlite> .mode column`
+
 `sqlite> pragma table_info('patient');`

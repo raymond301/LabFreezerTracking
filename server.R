@@ -2,6 +2,9 @@ library(shiny)
 
 # Define server logic required to draw a histogram
 shinyServer(function(input, output, session) {
+  ###################################################
+  #####              Home Page                  #####
+  ###################################################
   output$study_count <- renderText({ get_StudyCount() })
   output$patient_count <- renderText({ format(get_PatientCount(),big.mark=",",scientific=FALSE) })
   output$blooddraw_count <- renderText({ format(get_BloodDrawCount(),big.mark=",",scientific=FALSE) })
@@ -17,5 +20,16 @@ shinyServer(function(input, output, session) {
   observeEvent(input$changeDataInfo, {
     shinydashboard::updateTabItems(session, "explorertabs", "datainfo")
   })
+  
+  
+  
+  ###################################################
+  #####             Freezer Page                #####
+  ###################################################
+  output$StudyPicker <- renderUI({
+    selectInput(inputId = "select_study", label = "Working on:", choices = get_StudyList() )
+  })
+  output$current_study <- output$current_study2 <- output$current_study3 <- renderText({ input$select_study })
+  
   
 })
