@@ -31,5 +31,34 @@ shinyServer(function(input, output, session) {
   })
   output$current_study <- output$current_study2 <- output$current_study3 <- renderText({ input$select_study })
   
+  output$freezer_rack_tree <- renderUI({
+    myRacks <- getRacks_ByStudy(input$select_study)
+    lapply(1:length(myRacks), function(i) {
+      myBoxes <- getBoxes_ByRack(myRacks[i])
+      justPlasma <- myBoxes %>% filter(box_type == "Plasma")
+      justCells <- myBoxes %>% filter(box_type == "Cells")
+      box(width = 12,title = paste("Rack:",myRacks[i]),solidHeader = TRUE, collapsible = TRUE,collapsed = TRUE,
+          fluidRow(
+            box(width = 6,title = "Plasma", solidHeader = TRUE, collapsible = TRUE,collapsed = TRUE,
+                fluidRow(
+                  lapply(1:nrow(justPlasma), function(i) {
+                      box(width = 5,title = paste("Box:",justPlasma$box[i]), solidHeader = TRUE, collapsible = TRUE,collapsed = TRUE)
+                    }
+                  )
+                )),
+            box(width = 6,title = "Cells", solidHeader = TRUE, collapsible = TRUE,collapsed = TRUE,
+                fluidRow(
+                  lapply(1:nrow(justCells), function(i) {
+                    box(width = 5,title = paste("Box:",justCells$box[i]), solidHeader = TRUE, collapsible = TRUE,collapsed = TRUE)
+                  }
+                  )
+                ))
+          )
+      )
+    })
+  })
+
+  
+  
   
 })

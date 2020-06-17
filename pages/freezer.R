@@ -7,7 +7,11 @@ freezerpage <- dashboardPage(
     tabsetPanel(id="freesertabs",
                 tabPanel("Find",  value='freezer_tab1',
                          h2(paste("Locate Existing Freezer Data")),
-                         h3(textOutput("current_study"))
+                         h3(textOutput("current_study")),
+                         hr(),
+                         # Tree of boxes
+                         uiOutput('freezer_rack_tree')
+                         
                          ),
                 tabPanel("Create New",  value='freezer_tab2',
                          h2("Load Processed Tubes into new Freezer Box"),
