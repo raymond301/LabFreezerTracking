@@ -1,4 +1,4 @@
-# Welcome to About Page
+# Welcome to Biospecimen Freezer Tracking App
 
 this is about this project
 

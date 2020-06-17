@@ -1,7 +1,31 @@
-databaseFile <- "data/labdata.db"
-library(RSQLite)
-con <- dbConnect(drv=RSQLite::SQLite(), dbname=databaseFile)
+patientDBC <- "data/patientdata.db"
+freezerDBC <- "data/storagedata.db"
+pCon <- dbConnect(drv=RSQLite::SQLite(), dbname=patientDBC)
+fCon <- dbConnect(drv=RSQLite::SQLite(), dbname=freezerDBC)
+
+###### Front Page Counts ######
+get_StudyCount <- function(){
+  return( dbGetQuery(fCon, "SELECT COUNT(DISTINCT study_name) from blood_draw;")[[1]] )
+}
+get_PatientCount <- function(){
+  return( dbGetQuery(pCon, "SELECT COUNT(DISTINCT clinical_id) from patient;")[[1]] )
+}
+get_BloodDrawCount <- function(){
+  return( dbGetQuery(fCon, "SELECT COUNT(DISTINCT draw_id) from blood_draw WHERE retired = \"F\";")[[1]] )
+}
+get_FreezerSlotCount <- function(){
+  return( dbGetQuery(fCon, "SELECT COUNT(DISTINCT id) from freezer_slot WHERE status = \"Frozen\";")[[1]] )
+}
+
+
+
+getPatients_All <- function(){
+  return(dbGetQuery(pCon, "SELECT * FROM patient"))
+} 
+
+getBloodDraws_ByPatientID <- function(pid){
+  return(dbGetQuery(fCon, paste0("SELECT * FROM blood_draw WHERE record_id = \"",pid,"\"")))
+}
 
 # get a list of all tables inside this dataabase
-dbListTables(con)
-myTest <- dbGetQuery(con, "select * from patient")
+# dbListTables(con)

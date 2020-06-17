@@ -42,13 +42,13 @@ homepage <- dashboardPage(
           solidHeader = TRUE, collapsible = TRUE,
           
           fluidRow(
-            infoBox("Studies:", 31, width = 3, color = "olive",
+            infoBox("Studies:", textOutput("study_count"), width = 3, color = "olive",
                     fill = TRUE, icon = icon("book")),
-            infoBox("Patients:", 81, width = 3, color = "yellow",
+            infoBox("Patients:", textOutput("patient_count"), width = 3, color = "yellow",
                     fill = TRUE, icon = icon("address-card")),
-            infoBox("Blood Draws:", 287, width = 3, color = "red",
+            infoBox("Blood Draws:", textOutput("blooddraw_count"), width = 3, color = "red",
                     fill = TRUE, icon = icon("syringe")),
-            infoBox("Freezer Slots:", 1197, width = 3, color = "blue",
+            infoBox("Freezer Slots:", textOutput("freezerslot_count"), width = 3, color = "blue",
                     fill = TRUE, icon = icon("vial")),
           ),
         ),
@@ -98,6 +98,8 @@ homepage <- dashboardPage(
         fluidPage(
           
         h3("Add New Patient"),
+        
+        renderUI(test1),
         
         box(
           width = 12,
