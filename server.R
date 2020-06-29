@@ -59,6 +59,33 @@ shinyServer(function(input, output, session) {
       )
     })
   })
+  
+  output$FreezerPicker_newBox <- renderUI({
+    tags$div(title = "The freezer that the box is in...",
+      selectInput("freezer_newBox", label = "Freezer", choices = 1:9)
+    )
+  })
+  output$RackPicker_newBox <- renderUI({
+    tags$div(title = "The rack the new box is in...",
+      textInput("rack_newBox", label = "Rack")
+    )
+  })
+  output$ID_newBox <- renderUI({
+    tags$div(title = "The ID of the new box...",
+      textInput("id_newBox", label = "Box ID")
+    )
+  })
+  output$Dimensions_newBox <- renderUI({
+    tags$div(title = "The dimensions of the new box...",
+      tagList(
+        div(style = "display:inline-block", selectInput("rows_newBox", label = "Rows", choices = 1:10, width = 80)),
+#        div(style = "display:inline-block", p(" X ")),
+        div(style = "display:inline-block", selectInput("cols_newBox", label = "Columns", choices = 1:10, width = 80)),
+        
+      ),
+    )
+
+  })
 
   
   
