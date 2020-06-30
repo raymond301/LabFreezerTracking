@@ -86,6 +86,26 @@ shinyServer(function(input, output, session) {
     )
 
   })
+  
+  output$Grid_newBox <- renderUI({
+    numCols <- as.numeric(input$cols_newBox)
+    numRows <- as.numeric(input$rows_newBox)
+    
+    lapply(1:numRows, function(j){
+      div(style = "display:block",
+        lapply(1:numCols, function(i){
+         div(style = "display:inline-block",
+          
+         list(tags$p(tags$u(h6(paste0("Slot ", i + ((j-1)*numCols) )))),
+           textInput(paste0("slot", i + ((j-1)*numCols)), label = "Box Name", width = 90)
+         )
+        )
+      })
+      )
+    })
+
+    
+  })
 
   
   

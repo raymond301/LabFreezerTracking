@@ -35,7 +35,8 @@ freezerpage <- dashboardPage(
                              width = 4,
                              uiOutput("Dimensions_newBox")
                            )
-                         )
+                         ),
+                         uiOutput("Grid_newBox")
                          
                          
                          ),
