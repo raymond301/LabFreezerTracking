@@ -31,6 +31,8 @@ shinyServer(function(input, output, session) {
   })
   output$current_study <- output$current_study2 <- output$current_study3 <- renderText({ input$select_study })
   
+  output$current_study2 <- output$current_study3 <- renderText({ paste("Current Study:", input$select_study) })
+  
   output$freezer_rack_tree <- renderUI({
     myRacks <- getRacks_ByStudy(input$select_study)
     lapply(1:length(myRacks), function(i) {
@@ -60,51 +62,91 @@ shinyServer(function(input, output, session) {
     })
   })
   
+  #Create new box page
+  
   output$FreezerPicker_newBox <- renderUI({
-    tags$div(title = "The freezer that the box is in...",
+    tags$div(title = "The freezer the box is in...", style = "margin-bottom: -10px; margin-top: -5px",
       selectInput("freezer_newBox", label = "Freezer", choices = 1:9)
     )
   })
   output$RackPicker_newBox <- renderUI({
-    tags$div(title = "The rack the new box is in...",
-      textInput("rack_newBox", label = "Rack")
+    tags$div(title = "The rack the new box is in...", style = "margin-bottom: -10px; margin-top: -5px",
+      selectInput("rack_newBox", label = "Rack", choices = getRacks_ByStudy(input$select_study))
     )
   })
-  output$ID_newBox <- renderUI({
-    tags$div(title = "The ID of the new box...",
-      textInput("id_newBox", label = "Box ID")
-    )
-  })
-  output$Dimensions_newBox <- renderUI({
-    tags$div(title = "The dimensions of the new box...",
-      tagList(
-        div(style = "display:inline-block", selectInput("rows_newBox", label = "Rows", choices = 1:10, width = 80)),
-#        div(style = "display:inline-block", p(" X ")),
-        div(style = "display:inline-block", selectInput("cols_newBox", label = "Columns", choices = 1:10, width = 80)),
-        
+  observeEvent(input$newRack_newBox, {
+    showModal(modalDialog(
+      title = "Create a new Freezer Rack",
+      fluidRow(
+        box(
+          width = 5,
+          selectInput("Study_newRack", label = "Study", choices = get_StudyList(), selected = input$select_study)
+        ),
+        box(
+          width = 3,
+          selectInput("Freezer_newRack", label = "Freezer", choices = 1:9)
+        ),
+        box(
+          width = 4,
+          textInput("Name_newRack", label = "Rack Name")
+        )
       ),
-    )
-
+      actionButton("Save_newRack", label = "Save Rack")
+    ))
   })
+  output$Name_newBox <- renderUI({
+    tags$div(title = "The name of the new box...", style = "margin-bottom: -4px; margin-top: -5px",
+      textInput("name_newBox", label = "Box Name")
+    )
+  })
+  output$Type_newBox <- renderUI({
+    tags$div(title = "The type of tubes to be stored in the box...", style = "margin-bottom: -10px; margin-top: -5px",
+      selectInput("type_newBox", label = "Box Type", choices = c("Cells", "Plasma"))
+    )
+  })
+#   output$Dimensions_newBox <- renderUI({
+#     tags$div(title = "The dimensions of the new box...",
+#       tagList(
+#         div(style = "display:inline-block", selectInput("rows_newBox", label = "Rows", choices = 1:10, width = 80)),
+#         div(style = "display:inline-block", selectInput("cols_newBox", label = "Columns", choices = 1:10, width = 80)),
+#         
+#       ),
+#     )
+# 
+#   })
   
   output$Grid_newBox <- renderUI({
-    numCols <- as.numeric(input$cols_newBox)
-    numRows <- as.numeric(input$rows_newBox)
+    # numCols <- as.numeric(input$cols_newBox)
+    # numRows <- as.numeric(input$rows_newBox)
+    numCols <- 10
+    numRows <- 10
     
+    div(style = " white-space: nowrap; overflow-x: auto; overflow-y: hidden",
     lapply(1:numRows, function(j){
-      div(style = "display:block",
+      div(style = "display:block;",
         lapply(1:numCols, function(i){
-         div(style = "display:inline-block",
+         div(style = "display:inline-block; margin: 0px 0px; ",
           
-         list(tags$p(tags$u(h6(paste0("Slot ", i + ((j-1)*numCols) )))),
-           textInput(paste0("slot", i + ((j-1)*numCols)), label = "Box Name", width = 90)
+         list(
+           #tags$u(h6(paste0("Slot ", i + ((j-1)*numCols) ))),
+
+           actionButton(paste0("slot", i + ((j-1)*numCols)), label = i + ((j-1)*numCols), width = 46)
          )
         )
       })
       )
     })
-
+    )
     
+
+  })
+  
+  #Update box page
+  
+  output$RackPicker_updateBox <- renderUI({
+    tags$div(title = "The rack the box is in...", style = "margin-bottom: -10px; margin-top: -5px",
+        selectInput("rack_updateBox", label = "Rack", choices = getRacks_ByStudy(input$select_study))
+    )
   })
 
   
