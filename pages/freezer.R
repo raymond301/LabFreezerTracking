@@ -2,12 +2,17 @@ freezerpage <- dashboardPage(
   dashboardHeader(disable = TRUE),
   dashboardSidebar(
     uiOutput("StudyPicker"),
+
     conditionalPanel(
       condition = "input.freezertabs == 'freezer_tab3'",
       uiOutput("RackPicker_updateBox"),
       uiOutput("BoxPicker_updateBox"),
       uiOutput("TypePicker_updateBox")
-    )
+    ),
+
+    uiOutput("autoDraws"),
+    uiOutput("autoListNav")
+
   ),
   dashboardBody(
     tabsetPanel(id="freezertabs",
