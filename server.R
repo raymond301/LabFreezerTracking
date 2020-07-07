@@ -148,6 +148,60 @@ shinyServer(function(input, output, session) {
         selectInput("rack_updateBox", label = "Rack", choices = getRacks_ByStudy(input$select_study))
     )
   })
+  output$BoxPicker_updateBox <- renderUI({
+    tags$div(title = "The box to update...", style = "margin-bottom: -10px; margin-top: -5px",
+        selectInput("box_updateBox", label = "Box", choices = getBoxes_ByRack(input$rack_updateBox))
+    )
+  })
+  output$TypePicker_updateBox <- renderUI({
+    tags$div(title = "The type of box to update...", style = "margin-bottom: -10px; margin-top: -5px",
+        selectInput("type_updateBox", label = "Box Type", choices = c("Cells", "Plasma"))
+    )
+  })
+  output$Grid_updateBox <- renderUI({
+    numCols <- 10
+    numRows <- 10
+    backgroundColor <- NULL
+    
+    div(style = " white-space: nowrap; overflow-x: auto; overflow-y: hidden",
+        lapply(1:numRows, function(j){
+          div(style = "display:block;",
+              lapply(1:numCols, function(i){
+                
+                 slotStatus <- getStatus_byLocation(input$rack_updateBox, input$box_updateBox,
+                                                   i + ((j-1)*numCols), input$type_updateBox)
+                 if(nrow(slotStatus) > 0){
+                   if(slotStatus == "Frozen"){
+                     backgroundColor <- "green"
+                   }else if(slotStatus == "Pulled"){
+                     backgroundColor <- "red"
+                   }
+                 }
+                
+                div(style = "display:inline-block; margin: 0px 0px -15px 0px; ",
+                    
+                    list(
+                      box(
+                        width = 100, 
+                        background = backgroundColor,
+                        
+                        div(style = "display:inline-block; margin: -15px -5px 0px -5px; ",
+                        
+                        tags$u(h6(paste0("Slot ", i + ((j-1)*numCols) ))),
+                      
+                        actionButton(paste0("slot", i + ((j-1)*numCols)), 
+                                   label = getSamples_byLocation(input$rack_updateBox, input$box_updateBox,
+                                                                 i + ((j-1)*numCols), input$type_updateBox), 
+                                   width = 90)
+                        )
+                      )
+                    )
+                )
+              })
+          )
+        })
+    )
+  })
 
   
   

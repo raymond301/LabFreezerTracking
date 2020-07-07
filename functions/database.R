@@ -35,13 +35,20 @@ getRacks_ByStudy <- function(sid){
 }
 
 getBoxes_ByRack <- function(rid){
-  return( dbGetQuery(fCon, paste0("SELECT DISTINCT box,box_type FROM freezer_slot WHERE rack = \"",rid,"\"")) )
+  return( dbGetQuery(fCon, paste0("SELECT DISTINCT box FROM freezer_slot WHERE rack = \"",rid,"\"")) )
 }
 
 getBox_byIDs <- function(rid, tid, bid){
   return( dbGetQuery(fCon, paste0("SELECT * FROM freezer_slot WHERE rack = \"",rid,"\" AND box = \"",bid,"\" AND box_type = \"",tid,"\";")) )
 }
 
+getSamples_byLocation <- function(rid, bid, sid, tid){
+  return( dbGetQuery(fCon, paste0("SELECT DISTINCT blood_draw_id FROM freezer_slot WHERE rack = \"",rid,"\" AND box = \"",bid,"\" AND slot = \"",sid,"\" AND box_type = \"",tid,"\";")) )
+}
+
+getStatus_byLocation <- function(rid, bid, sid, tid){
+  return( dbGetQuery(fCon, paste0("SELECT DISTINCT status FROM freezer_slot WHERE rack = \"",rid,"\" AND box = \"",bid,"\" AND slot = \"",sid,"\" AND box_type = \"",tid,"\";")) )
+}
 ###### Whole Data tables ######
 
 getPatients_All <- function(){

@@ -1,10 +1,16 @@
 freezerpage <- dashboardPage(
   dashboardHeader(disable = TRUE),
   dashboardSidebar(
-    uiOutput("StudyPicker")
+    uiOutput("StudyPicker"),
+    conditionalPanel(
+      condition = "input.freezertabs == 'freezer_tab3'",
+      uiOutput("RackPicker_updateBox"),
+      uiOutput("BoxPicker_updateBox"),
+      uiOutput("TypePicker_updateBox")
+    )
   ),
   dashboardBody(
-    tabsetPanel(id="freesertabs",
+    tabsetPanel(id="freezertabs",
                 tabPanel("Find",  value='freezer_tab1',
                          h2(paste("Locate Existing Freezer Data")),
                          h3(textOutput("current_study")),
@@ -52,10 +58,12 @@ freezerpage <- dashboardPage(
                          
                          
                          ),
-                tabPanel("Update / Withdraw",  value='freezer_tab2',
+                tabPanel("Update / Withdraw",  value='freezer_tab3',
                          h3("Add or Remove vials from exisiting Freezer Box"),
                          h4(textOutput("current_study3")),
-                         uiOutput("RackPicker_updateBox")
+                         #uiOutput("RackPicker_updateBox"),
+                         #uiOutput("BoxPicker_updateBox"),
+                         uiOutput("Grid_updateBox")
                          )
                 )
     
