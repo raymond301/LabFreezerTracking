@@ -2,7 +2,8 @@ freezerpage <- dashboardPage(
   dashboardHeader(disable = TRUE),
   dashboardSidebar(
     uiOutput("StudyPicker"),
-    uiOutput("autoDraws")
+    uiOutput("autoDraws"),
+    uiOutput("autoListNav")
   ),
   dashboardBody(
     tabsetPanel(id="freesertabs",
