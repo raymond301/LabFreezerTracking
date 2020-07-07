@@ -30,6 +30,10 @@ getBloodDraws_ByPatientID <- function(pid){
   return( dbGetQuery(fCon, paste0("SELECT * FROM blood_draw WHERE record_id = \"",pid,"\"")) )
 }
 
+getBloodDrawIDs_ByStudy <- function(sid){
+  return( dbGetQuery(fCon, paste0("SELECT draw_id FROM blood_draw WHERE study_name = \"",sid,"\""))$draw_id )
+}
+
 getRacks_ByStudy <- function(sid){
   return( dbGetQuery(fCon, paste0("SELECT DISTINCT rack FROM freezer_slot JOIN blood_draw ON blood_draw.draw_id = freezer_slot.blood_draw_id WHERE blood_draw.study_name = \"",sid,"\";"))$rack )
 }

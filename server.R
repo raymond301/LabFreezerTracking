@@ -64,6 +64,14 @@ shinyServer(function(input, output, session) {
   
   #Create new box page
   
+  ### Query to pull all blood draw ids, for auto-complete (study specific)
+  observeEvent(input$select_study, {
+    output$autoDraws <- renderUI({
+      autocomplete_input("auto1", "Blood Draws:", getBloodDrawIDs_ByStudy(input$select_study), max_options = 10)
+    })
+  })
+  
+  
   output$FreezerPicker_newBox <- renderUI({
     tags$div(title = "The freezer the box is in...", style = "margin-bottom: -10px; margin-top: -5px",
       selectInput("freezer_newBox", label = "Freezer", choices = 1:9)
