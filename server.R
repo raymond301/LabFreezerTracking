@@ -71,25 +71,25 @@ shinyServer(function(input, output, session) {
     })
   })
   
-  observeEvent(input$auto1, {
-    bdlist <<- c(bdlist, input$auto1)
-    bdlist <<- bdlist[bdlist != ""]
-    if(length(bdlist) > 0){
-      output$autoListNav <- renderUI({
-          radioButtons("picked_bd", "Prepared IDs", choices = bdlist)
-      })
-    }
-    update_autocomplete_input(session,"auto1",value = "")
-  })
+  # observeEvent(input$auto1, {
+  #   bdlist <<- c(bdlist, input$auto1)
+  #   bdlist <<- bdlist[bdlist != ""]
+  #   if(length(bdlist) > 0){
+  #     output$autoListNav <- renderUI({
+  #         radioButtons("picked_bd", "Prepared IDs", choices = bdlist)
+  #     })
+  #   }
+  #   update_autocomplete_input(session,"auto1",value = "")
+  # })
   
   output$FreezerPicker_newBox <- renderUI({
     tags$div(title = "The freezer the box is in...", style = "margin-bottom: -10px; margin-top: -5px",
-      selectInput("freezer_newBox", label = "Freezer", choices = 1:9)
+      selectInput("freezer_newBox", label = "Freezer:", choices = 1:9)
     )
   })
   output$RackPicker_newBox <- renderUI({
     tags$div(title = "The rack the new box is in...", style = "margin-bottom: -10px; margin-top: -5px",
-      selectInput("rack_newBox", label = "Rack", choices = getRacks_ByStudy(input$select_study))
+      selectInput("rack_newBox", label = "Rack:", choices = getRacks_ByStudy(input$select_study))
     )
   })
   observeEvent(input$newRack_newBox, {
@@ -98,14 +98,20 @@ shinyServer(function(input, output, session) {
       fluidRow(
         box(
           width = 5,
+          background = "blue",
+          height = 90,
           selectInput("Study_newRack", label = "Study", choices = get_StudyList(), selected = input$select_study)
         ),
         box(
           width = 3,
+          background = "blue",
+          height = 90,
           selectInput("Freezer_newRack", label = "Freezer", choices = 1:9)
         ),
         box(
           width = 4,
+          background = "blue",
+          height = 90,
           textInput("Name_newRack", label = "Rack Name")
         )
       ),
@@ -114,12 +120,12 @@ shinyServer(function(input, output, session) {
   })
   output$Name_newBox <- renderUI({
     tags$div(title = "The name of the new box...", style = "margin-bottom: -4px; margin-top: -5px",
-      textInput("name_newBox", label = "Box Name")
+      textInput("name_newBox", label = "Box Name:")
     )
   })
   output$Type_newBox <- renderUI({
     tags$div(title = "The type of tubes to be stored in the box...", style = "margin-bottom: -10px; margin-top: -5px",
-      selectInput("type_newBox", label = "Box Type", choices = c("Cells", "Plasma"))
+      selectInput("type_newBox", label = "Box Type:", choices = c("Cells", "Plasma"))
     )
   })
 #   output$Dimensions_newBox <- renderUI({
@@ -148,16 +154,36 @@ shinyServer(function(input, output, session) {
          list(
            #tags$u(h6(paste0("Slot ", i + ((j-1)*numCols) ))),
 
-           actionButton(paste0("slot", i + ((j-1)*numCols)), label = i + ((j-1)*numCols), width = 46)
+           actionButton(paste0("slot", i + ((j-1)*numCols)), label = i + ((j-1)*numCols), width = 92)
          )
         )
       })
       )
     })
     )
-    
 
   })
+      output$SlotStart_newBox <- renderUI({
+       tags$div(title = "The starting slot to enter the samples...", #style = "margin-bottom: -4px; margin-top: -5px",
+                textInput("slotStart_newBox", label = "Starting Slot:")
+       )
+     })
+     output$SlotEnd_newBox <- renderUI({
+       tags$div(title = "The ending slot to enter the samples...", #style = "margin-bottom: -4px; margin-top: -5px",
+                textInput("slotEnd_newBox", label = "Ending Slot:")
+       )
+     })
+     
+     observeEvent(input$addSamples_newBox, {
+       slotStart <- as.numeric(input$slotStart_newBox)
+       slotEnd <- as.numeric(input$slotEnd_newBox)
+       
+       #updateActionButton(session, paste0("slot", slotEnd), label = "a")
+        for(i in slotStart:slotEnd){
+          currSlot <- paste0("slot", i)
+          updateActionButton(session, currSlot, label = input$auto1, icon("vial"))
+        }
+     })
   
   #Update box page
   
@@ -173,7 +199,7 @@ shinyServer(function(input, output, session) {
   })
   output$TypePicker_updateBox <- renderUI({
     tags$div(title = "The type of box to update...", style = "margin-bottom: -10px; margin-top: -5px",
-        selectInput("type_updateBox", label = "Box Type", choices = c("Cells", "Plasma"))
+        selectInput("type_updateBox", label = "Box Type", choices = getTypes_byLocation(input$rack_updateBox, input$box_updateBox))
     )
   })
   output$Grid_updateBox <- renderUI({
