@@ -202,6 +202,7 @@ shinyServer(function(input, output, session) {
         selectInput("type_updateBox", label = "Box Type", choices = getTypes_byLocation(input$rack_updateBox, input$box_updateBox))
     )
   })
+  
   output$Grid_updateBox <- renderUI({
     numCols <- 10
     numRows <- 10
@@ -239,6 +240,58 @@ shinyServer(function(input, output, session) {
           )
         })
     )
+  })
+  
+  
+  
+  ####################################################
+  #####  MODAL & Submit new record to Database   #####
+  ####################################################
+  # Return the UI for a modal dialog with data selection input. If 'failed' is
+  # TRUE, then display a message that the previous value was invalid.
+  newDrawModal <- function(slt, name, slotObj, failed = FALSE) {
+    modalDialog(
+      fluidRow(
+        column(9, span(
+          h4(paste("Update record for Slot #",slt,":", name)),
+          style="color:#0BB815"))
+      ),
+      fluidRow(
+        column(4, paste("Status:",slotObj[1,]$status) ),
+        column(4, actionButton(paste0("pull_slot",slt), label = "Pull")
+        ),
+        column(4, )
+      ),
+      hr(),
+      fluidRow(
+        column(6, dateInput("draw_date","Date", format="mm/dd/yy")
+        )
+      ),
+      fluidRow(
+        column(4, h5('Amount (mL):')),
+        column(4, textInput("total_received_tube","#")
+        )
+      ),
+      fluidRow(
+        column(4, h5('Comments:')),
+        column(4, textInput("total_received_tube","#")
+        )
+      ),
+      if (failed)
+        div(tags$b("Error! Unable to update database", style = "color: red;")),
+        
+      footer = tagList(
+        modalButton("Cancel"),
+        actionButton("ok_drawrecord", "OK")
+        )
+    )
+  }
+  
+  observeEvent(input$slot1, {
+    label = getSamples_byLocation(input$rack_updateBox, input$box_updateBox, 1, input$type_updateBox)
+    slObj = getSlot_byLocation(input$rack_updateBox, input$box_updateBox, 1, input$type_updateBox)
+    print(slObj)
+    showModal(newDrawModal(1, label, slObj))
   })
 
   

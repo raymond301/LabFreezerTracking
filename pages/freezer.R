@@ -101,7 +101,7 @@ freezerpage <- dashboardPage(
                              uiOutput("TypePicker_updateBox")
                            )
                          ),
-                         uiOutput("Grid_updateBox")                        
+                         uiOutput("Grid_updateBox"),                     
                          h4(textOutput("current_study3"))
 
                          )

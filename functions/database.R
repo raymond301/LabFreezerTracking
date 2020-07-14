@@ -57,6 +57,10 @@ getStatus_byLocation <- function(rid, bid, sid, tid){
 getTypes_byLocation <- function(rid, bid){
   return( dbGetQuery(fCon, paste0("SELECT DISTINCT box_type FROM freezer_slot WHERE rack = \"",rid,"\" AND box = \"",bid,"\";")) )
 }
+
+getSlot_byLocation <- function(rid, bid, sid, tid){
+  return( dbGetQuery(fCon, paste0("SELECT * FROM freezer_slot WHERE rack = \"",rid,"\" AND box = \"",bid,"\" AND slot = \"",sid,"\" AND box_type = \"",tid,"\";")) )
+}
 ###### Whole Data tables ######
 
 getPatients_All <- function(){
