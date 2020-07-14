@@ -3,16 +3,29 @@ freezerpage <- dashboardPage(
   dashboardSidebar(
     uiOutput("StudyPicker"),
 
+    # conditionalPanel(
+    #   condition = "input.freezertabs == 'freezer_tab3'",
+    # 
+    #   uiOutput("RackPicker_updateBox"),
+    #   uiOutput("BoxPicker_updateBox"),
+    #   uiOutput("TypePicker_updateBox")
+    # ),
     conditionalPanel(
-      condition = "input.freezertabs == 'freezer_tab3'",
-      uiOutput("RackPicker_updateBox"),
-      uiOutput("BoxPicker_updateBox"),
-      uiOutput("TypePicker_updateBox")
+      condition = "input.freezertabs == 'freezer_tab2'",
+      
+      actionButton("newRack_newBox", label = "Create New Rack")
     ),
 
     uiOutput("autoDraws"),
-    uiOutput("autoListNav")
-
+    #uiOutput("autoListNav")
+    
+    conditionalPanel(
+      condition = "input.freezertabs == 'freezer_tab2'",
+      
+      uiOutput("SlotStart_newBox"),
+      uiOutput("SlotEnd_newBox"),
+      actionButton("addSamples_newBox", "Add Samples")
+    )
   ),
   dashboardBody(
     tabsetPanel(id="freezertabs",
@@ -25,8 +38,8 @@ freezerpage <- dashboardPage(
                          
                          ),
                 tabPanel("Create New Box",  value='freezer_tab2',
-                         h3("Create a new Freezer Box"),
-                         h4(textOutput("current_study2")),
+                         h4("Create a new Freezer Box"),
+                         #h4(textOutput("current_study2")),
                          
                          fluidRow(
                            box(
@@ -38,8 +51,8 @@ freezerpage <- dashboardPage(
                              width = 2,
                              background = "blue",
                              uiOutput("RackPicker_newBox"),
-                             h6("or"),
-                             actionButton("newRack_newBox", label = "New Rack")
+                             #h6("or"),
+                             #actionButton("newRack_newBox", label = "New Rack")
                            ),
                            box(
                              width = 2,
@@ -65,11 +78,32 @@ freezerpage <- dashboardPage(
                          ),
                 tabPanel("Update / Withdraw",  value='freezer_tab3',
                          #h3("Add or Remove vials from exisiting Freezer Box"),
+                         #h4(textOutput("current_study3")),
                          #uiOutput("RackPicker_updateBox"),
                          #uiOutput("BoxPicker_updateBox"),
-                         uiOutput("Grid_updateBox"),
+                         h6(""),
+                         fluidRow(
+                           box(
+                             width = 2,
+                             background = "blue",
+                             uiOutput("RackPicker_updateBox"),
+                             #h6("or"),
+                             #actionButton("newRack_newBox", label = "New Rack")
+                           ),
+                           box(
+                             width = 2,
+                             background = "blue",
+                             uiOutput("BoxPicker_updateBox")  
+                           ),
+                           box(
+                             width = 2,
+                             background = "blue",
+                             uiOutput("TypePicker_updateBox")
+                           )
+                         ),
+                         uiOutput("Grid_updateBox")                        
                          h4(textOutput("current_study3"))
-                         
+
                          )
                 )
     

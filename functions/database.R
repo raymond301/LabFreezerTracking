@@ -35,7 +35,7 @@ getBloodDrawIDs_ByStudy <- function(sid){
 }
 
 getRacks_ByStudy <- function(sid){
-  return( dbGetQuery(fCon, paste0("SELECT DISTINCT rack FROM freezer_slot JOIN blood_draw ON blood_draw.draw_id = freezer_slot.blood_draw_id WHERE blood_draw.study_name = \"",sid,"\";"))$rack )
+  return( sort(dbGetQuery(fCon, paste0("SELECT DISTINCT rack FROM freezer_slot JOIN blood_draw ON blood_draw.draw_id = freezer_slot.blood_draw_id WHERE blood_draw.study_name = \"",sid,"\";"))$rack) )
 }
 
 getBoxes_ByRack <- function(rid){
@@ -52,6 +52,10 @@ getSamples_byLocation <- function(rid, bid, sid, tid){
 
 getStatus_byLocation <- function(rid, bid, sid, tid){
   return( dbGetQuery(fCon, paste0("SELECT DISTINCT status FROM freezer_slot WHERE rack = \"",rid,"\" AND box = \"",bid,"\" AND slot = \"",sid,"\" AND box_type = \"",tid,"\";")) )
+}
+
+getTypes_byLocation <- function(rid, bid){
+  return( dbGetQuery(fCon, paste0("SELECT DISTINCT box_type FROM freezer_slot WHERE rack = \"",rid,"\" AND box = \"",bid,"\";")) )
 }
 ###### Whole Data tables ######
 
