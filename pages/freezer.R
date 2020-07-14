@@ -64,11 +64,12 @@ freezerpage <- dashboardPage(
                          
                          ),
                 tabPanel("Update / Withdraw",  value='freezer_tab3',
-                         h3("Add or Remove vials from exisiting Freezer Box"),
-                         h4(textOutput("current_study3")),
+                         #h3("Add or Remove vials from exisiting Freezer Box"),
                          #uiOutput("RackPicker_updateBox"),
                          #uiOutput("BoxPicker_updateBox"),
-                         uiOutput("Grid_updateBox")
+                         uiOutput("Grid_updateBox"),
+                         h4(textOutput("current_study3"))
+                         
                          )
                 )
     
