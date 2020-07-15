@@ -177,53 +177,64 @@ homepage <- dashboardPage(
           background = "blue",
           fluidRow(
             box(
-              width = 6,
+              width = 3,
               background = "blue",
               numericInput(inputId = "clinicalId_bloodDraw", label = "Patient Clinical Number", value = NULL)
             ),
             box(
-              width = 6,
+              width = 3,
               background = "blue",
               textInput(inputId = "studyID", label = "Study ID")
-            )
-          ),
-          fluidRow(
-            box(
-              width = 6,
-              background = "blue",
-              dateInput(inputId = "drawDate", label = "Date of Draw", format = "m/d/yyyy")
             ),
             box(
-              width = 6,
+              width = 3,
               background = "blue",
-              textInput(inputId = "drawTime", label = "Time of Draw", placeholder = "HH:MM")
-            )
-          ),
-          fluidRow(
-            box(
-              width = 6,
-              background = "blue",
-              dateInput(inputId = "processDate", label = "Date of Processing", format = "m/d/yyyy")
+              numericInput(inputId = "totalTubes", label = "Total number of tubes", value = 0)
             ),
             box(
-              width = 6,
-              background = "blue",
-              textInput(inputId = "processTime", label = "Time of Processing", placeholder = "HH:MM")
-            )
-          ),
-          h4("Total Amount Received:"),
-          fluidRow(
-            box(
-              width = 6,
-              background = "blue",
-              numericInput(inputId = "totalTubes", label = "Number of tubes", value = 0)
-            ),
-            box(
-              width = 6,
+              width = 3,
               background = "blue",
               numericInput(inputId = "totalVolume", label = "Total volume (mL)", value = 0)
             )
           ),
+          fluidRow(
+            box(
+              width = 3,
+              background = "blue",
+              dateInput(inputId = "drawDate", label = "Date of Draw", format = "m/d/yyyy")
+            ),
+            box(
+              width = 3,
+              background = "blue",
+              textInput(inputId = "drawTime", label = "Time of Draw", placeholder = "HH:MM")
+            ),
+            box(
+              width = 3,
+              background = "blue",
+              dateInput(inputId = "processDate", label = "Date of Processing", format = "m/d/yyyy")
+            ),
+            box(
+              width = 3,
+              background = "blue",
+              textInput(inputId = "processTime", label = "Time of Processing", placeholder = "HH:MM")
+            )
+          ),
+          # fluidRow(
+          #   
+          # ),
+          # h4("Total Amount Received:"),
+          # fluidRow(
+          #   box(
+          #     width = 6,
+          #     background = "blue",
+          #     numericInput(inputId = "totalTubes", label = "Number of tubes", value = 0)
+          #   ),
+          #   box(
+          #     width = 6,
+          #     background = "blue",
+          #     numericInput(inputId = "totalVolume", label = "Total volume (mL)", value = 0)
+          #   )
+          # ),
           
           
           h4("Tube Types:"),

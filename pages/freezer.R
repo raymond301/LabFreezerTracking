@@ -13,7 +13,7 @@ freezerpage <- dashboardPage(
     conditionalPanel(
       condition = "input.freezertabs == 'freezer_tab2'",
       
-      actionButton("newRack_newBox", label = "Create New Rack")
+      actionButton("newRack_newBox", label = "Create New Rack"),
     ),
 
     uiOutput("autoDraws"),

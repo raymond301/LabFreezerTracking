@@ -154,7 +154,7 @@ shinyServer(function(input, output, session) {
          list(
            #tags$u(h6(paste0("Slot ", i + ((j-1)*numCols) ))),
 
-           actionButton(paste0("slot", i + ((j-1)*numCols)), label = i + ((j-1)*numCols), width = 92)
+           actionButton(paste0("slot", i + ((j-1)*numCols)), label = i + ((j-1)*numCols), width = 100)
          )
         )
       })
