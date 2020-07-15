@@ -114,36 +114,36 @@ homepage <- dashboardPage(
             box(
               width = 4,
               background = "blue",
-              textInput(inputId = "patientName", label = "Patient Name", placeholder = "Enter Patient Last Name..."),
+              textInput(inputId = "patientName_newPatient", label = "Patient Name", placeholder = "Enter Patient Last Name..."),
             ),
             box(
               width = 4,
               background = "blue",
-              dateInput(inputId = "birthDate", label = "Birth Date (MM/DD/YYYY)", format = "m/d/yyyy")
+              dateInput(inputId = "birthDate_newPatient", label = "Birth Date (MM/DD/YYYY)", format = "m/d/yyyy")
             ),
             box(
               width = 4,
               background = "blue",
-              numericInput(inputId = "clinicalId", label = "Clinical ID Number", value = NULL)
+              numericInput(inputId = "clinicalId_newPatient", label = "Clinical ID Number", value = NULL)
             )
           ),
           fluidRow(
             box(
               width = 4,
               background = "blue",
-              radioButtons(inputId = "mortality", label = "Mortality Status:", 
+              radioButtons(inputId = "mortality_newPatient", label = "Mortality Status:", 
                            choices = c("Alive" = "A", "Dead" = "D", "Unknown" = "U"), selected = "U")
             ),
             box(
               width = 4,
               background = "blue",
-              radioButtons(inputId = "gender", label = "Gender:", 
+              radioButtons(inputId = "gender_newPatient", label = "Gender:", 
                            choices = c("Male" = "M", "Female" = "F", "Unknown/Other" = "U"), selected = "U")
             ),
             box(
               width = 4,
               background = "blue",
-              textInput(inputId = "clinicalId2", label = "Second Clinical ID/External ID (optional)", 
+              textInput(inputId = "clinicalId2_newPatient", label = "Second Clinical ID/External ID (optional)", 
                         placeholder = "Enter Second Clinical ID Number...")
             )  
           ),
@@ -151,23 +151,23 @@ homepage <- dashboardPage(
             box(
               width = 4,
               background = "blue",
-              dateInput(inputId = "deathDate", label = "Death Date (MM/DD/YYYY)", format = "m/d/yyyy")
+              dateInput(inputId = "deathDate_newPatient", label = "Death Date (MM/DD/YYYY)", format = "m/d/yyyy")
             ),
             box(
               width = 4,
               background = "blue",
-              radioButtons(inputId = "vipStatus", label = "Flag as VIP:", 
+              radioButtons(inputId = "vipStatus_newPatient", label = "Flag as VIP:", 
                            choices = c("Yes" = "Y", "No" = "N"), selected = "N")
             ),
             box(
               width = 4,
               background = "blue",
-              textAreaInput(inputId = "patientComments", label = "Comments (optional)", rows = 2,
+              textAreaInput(inputId = "comments_newPatient", label = "Comments (optional)", rows = 2,
                             placeholder = "Add additional comments...")
               
             )
           ),
-          actionButton(inputId = "addPatient", label = "Submit")
+          actionButton(inputId = "submit_newPatient", label = "Submit")
         )
         )
       ),
@@ -182,63 +182,46 @@ homepage <- dashboardPage(
             box(
               width = 3,
               background = "blue",
-              numericInput(inputId = "clinicalId_bloodDraw", label = "Patient Clinical Number", value = NULL)
+              numericInput(inputId = "clinicalId_newDraw", label = "Patient Clinical Number", value = NULL)
             ),
             box(
               width = 3,
               background = "blue",
-              textInput(inputId = "studyID", label = "Study ID")
+              textInput(inputId = "studyId_newDraw", label = "Study ID")
             ),
             box(
               width = 3,
               background = "blue",
-              numericInput(inputId = "totalTubes", label = "Total number of tubes", value = 0)
+              numericInput(inputId = "totalTubes_newDraw", label = "Total number of tubes", value = 0)
             ),
             box(
               width = 3,
               background = "blue",
-              numericInput(inputId = "totalVolume", label = "Total volume (mL)", value = 0)
+              numericInput(inputId = "totalVolume_newDraw", label = "Total volume (mL)", value = 0)
             )
           ),
           fluidRow(
             box(
               width = 3,
               background = "blue",
-              dateInput(inputId = "drawDate", label = "Date of Draw", format = "m/d/yyyy")
+              dateInput(inputId = "date_newDraw", label = "Date of Draw", format = "m/d/yyyy")
             ),
             box(
               width = 3,
               background = "blue",
-              textInput(inputId = "drawTime", label = "Time of Draw", placeholder = "HH:MM")
+              textInput(inputId = "time_newDraw", label = "Time of Draw", placeholder = "HH:MM")
             ),
             box(
               width = 3,
               background = "blue",
-              dateInput(inputId = "processDate", label = "Date of Processing", format = "m/d/yyyy")
+              dateInput(inputId = "processDate_newDraw", label = "Date of Processing", format = "m/d/yyyy")
             ),
             box(
               width = 3,
               background = "blue",
-              textInput(inputId = "processTime", label = "Time of Processing", placeholder = "HH:MM")
+              textInput(inputId = "processTime_newDraw", label = "Time of Processing", placeholder = "HH:MM")
             )
           ),
-          # fluidRow(
-          #   
-          # ),
-          # h4("Total Amount Received:"),
-          # fluidRow(
-          #   box(
-          #     width = 6,
-          #     background = "blue",
-          #     numericInput(inputId = "totalTubes", label = "Number of tubes", value = 0)
-          #   ),
-          #   box(
-          #     width = 6,
-          #     background = "blue",
-          #     numericInput(inputId = "totalVolume", label = "Total volume (mL)", value = 0)
-          #   )
-          # ),
-          
           
           h4("Tube Types:"),
           
@@ -251,12 +234,12 @@ homepage <- dashboardPage(
                 box(
                   width = 6,
                   title = "Number of Tubes",
-                  numericInput(inputId = "sodiumTubes", label = NULL, value = 0)
+                  numericInput(inputId = "sodiumTubes_newDraw", label = NULL, value = 0)
                 ),
                 box(
                   width = 6,
                   title = "Total Volume (mL)",
-                  numericInput(inputId = "sodiumVolume", label = NULL, value = 0)
+                  numericInput(inputId = "sodiumVolume_newDraw", label = NULL, value = 0)
                 )
               )
             ),
@@ -268,12 +251,12 @@ homepage <- dashboardPage(
                 box(
                   width = 6,
                   title = "Number of Tubes",
-                  numericInput(inputId = "EDTATubes", label = NULL, value = 0)
+                  numericInput(inputId = "EDTATubes_newDraw", label = NULL, value = 0)
                 ),
                 box(
                   width = 6,
                   title = "Total Volume (mL)",
-                  numericInput(inputId = "EDTAVolume", label = NULL, value = 0)
+                  numericInput(inputId = "EDTAVolume_newDraw", label = NULL, value = 0)
                 )
               )
             ),
@@ -288,12 +271,12 @@ homepage <- dashboardPage(
                 box(
                   width = 6,
                   title = "Number of Tubes",
-                  numericInput(inputId = "wholeTubes", label = NULL, value = 0)
+                  numericInput(inputId = "wholeTubes_newDraw", label = NULL, value = 0)
                 ),
                 box(
                   width = 6,
                   title = "Total Volume (mL)",
-                  numericInput(inputId = "wholeVolume", label = NULL, value = 0)
+                  numericInput(inputId = "wholeVolume_newDraw", label = NULL, value = 0)
                 )
               )
             ),
@@ -305,12 +288,12 @@ homepage <- dashboardPage(
                 box(
                   width = 6,
                   title = "Number of Tubes",
-                  numericInput(inputId = "streckTubes", label = NULL, value = 0)
+                  numericInput(inputId = "streckTubes_newDraw", label = NULL, value = 0)
                 ),
                 box(
                   width = 6,
                   title = "Total Volume (mL)",
-                  numericInput(inputId = "streckVolume", label = NULL, value = 0)
+                  numericInput(inputId = "streckVolume_newDraw", label = NULL, value = 0)
                 )
               )
             ),
@@ -325,12 +308,12 @@ homepage <- dashboardPage(
                 box(
                   width = 6,
                   title = "Number of Tubes",
-                  numericInput(inputId = "ACDTubes", label = NULL, value = 0)
+                  numericInput(inputId = "ACDTubes_newDraw", label = NULL, value = 0)
                 ),
                 box(
                   width = 6,
                   title = "Total Volume (mL)",
-                  numericInput(inputId = "ACDVolume", label = NULL, value = 0)
+                  numericInput(inputId = "ACDVolume_newDraw", label = NULL, value = 0)
                 )
               )
             ),
@@ -342,56 +325,90 @@ homepage <- dashboardPage(
                 box(
                   width = 6,
                   title = "Number of Tubes",
-                  numericInput(inputId = "otherTubes", label = NULL, value = 0)
+                  numericInput(inputId = "otherTubes_newDraw", label = NULL, value = 0)
                 ),
                 box(
                   width = 6,
                   title = "Total Volume (mL)",
-                  numericInput(inputId = "otherVolume", label = NULL, value = 0)
+                  numericInput(inputId = "otherVolume_newDraw", label = NULL, value = 0)
                 )
               )
             ),
           ),
-          
-          h4("Processed Plasma Tubes:"),
-          
           fluidRow(
-            box(
-              width = 6,
-              background = "blue",
-              numericInput(inputId = "plasmaTubes", label = "Number of Tubes", value = 0)
+            column(
+              width = 3,
+              
+              h4("Processed Plasma Tubes:"),
+              fluidRow(
+                box(
+                  width = 6,
+                  status = "danger",
+                  background = "blue",
+                  numericInput(inputId = "plasmaTubes_newDraw", label = "Number of Tubes", value = 0)
+                ),
+                box(
+                  width = 6,
+                  status = "danger",
+                  background = "blue",
+                  numericInput(inputId = "plasmaVolume_newDraw", label = "Total Volume (mL)", value = 0)
+                )
+              ),
             ),
-            box(
-              width = 6,
-              background = "blue",
-              numericInput(inputId = "plasmaVolume", label = "Total Volume (mL)", value = 0)
+            column(
+              width = 3,
+              
+              h4("Processed Serum Tubes:"),
+              fluidRow(
+                box(
+                  width = 6,
+                  status = "warning",
+                  background = "blue",
+                  numericInput(inputId = "serumTubes_newDraw", label = "Number of Tubes", value = 0)
+                ),
+                box(
+                  width = 6,
+                  status = "warning",
+                  background = "blue",
+                  numericInput(inputId = "serumVolume_newDraw", label = "Total Volume (mL)", value = 0)
+                )
+              )
+            ),
+            column(
+              width = 5,
+              
+              h4("Processed Cell Tubes:"),
+              fluidRow(
+                box(
+                  width = 4,
+                  status = "success",
+                  background = "blue",
+                  numericInput(inputId = "cellTubes_newDraw", label = "Number of Tubes", value = 0)
+                ),
+                box(
+                  width = 4,
+                  status = "success",
+                  background = "blue",
+                  numericInput(inputId = "cellVolume_newDraw", label = "Total Volume (mL)", value = 0)
+                ),
+                box(
+                  width = 4,
+                  status = "success",
+                  background = "blue",
+                  numericInput(inputId = "cellConcentration_newDraw", label = "Concentration (Cells/mL)", value = 0)
+                )
+              ),
             )
           ),
-          
-          h4("Processed Cell Tubes:"),
-          
           fluidRow(
             box(
               width = 6,
               background = "blue",
-              numericInput(inputId = "cellTubes", label = "Number of Tubes", value = 0)
-            ),
-            box(
-              width = 6,
-              background = "blue",
-              numericInput(inputId = "cellVolume", label = "Total Volume", value = 0)
-            )
-          ),
-          
-          fluidRow(
-            box(
-              width = 6,
-              background = "blue",
-              textAreaInput(inputId = "drawComments", label = "Comments", rows = 2,
+              textAreaInput(inputId = "comments_newDraw", label = "Comments", rows = 2,
                             placeholder = "Add additional comments...")
             )
           ),
-          actionButton(inputId = "addDraw", label = "Submit")
+          actionButton(inputId = "submit_newDraw", label = "Submit")
           
         )
         )

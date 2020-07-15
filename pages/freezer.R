@@ -22,8 +22,10 @@ freezerpage <- dashboardPage(
     conditionalPanel(
       condition = "input.freezertabs == 'freezer_tab2'",
       
-      uiOutput("SlotStart_newBox"),
-      uiOutput("SlotEnd_newBox"),
+      fluidRow(
+        column(width = 6, uiOutput("SlotStart_newBox")),
+        column(width = 6, uiOutput("NumTubes_newBox"))
+      ),
       actionButton("addSamples_newBox", "Add Samples")
     )
   ),
