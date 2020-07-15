@@ -14,3 +14,5 @@ purrr::walk(page_files, source, local = environment())
 
 source("functions/database.R")
 source("functions/summarize.R")
+
+freezerNameList <- c("R001","R002","R003","R004","R005","R006","R007","R008")

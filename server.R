@@ -33,6 +33,16 @@ shinyServer(function(input, output, session) {
   
   output$current_study2 <- output$current_study3 <- renderText({ paste("Current Study:", input$select_study) })
   
+  ### Query to pull all blood draw ids, for auto-complete (study specific)
+  observeEvent(input$select_study, {
+    output$autoDraws <- renderUI({
+      autocomplete_input("auto1", "Blood Draws:", c('',getBloodDrawIDs_ByStudy(input$select_study)), max_options = 10)
+    })
+  })
+  
+  ###################################################
+  #####     Freezer Page  - FIND TAB            #####
+  ###################################################
   output$freezer_rack_tree <- renderUI({
     myRacks <- getRacks_ByStudy(input$select_study)
     lapply(1:length(myRacks), function(i) {
@@ -44,9 +54,9 @@ shinyServer(function(input, output, session) {
             box(width = 6,title = "Plasma", solidHeader = TRUE, collapsible = TRUE,collapsed = TRUE,
                 fluidRow(
                   lapply(1:nrow(justPlasma), function(i) {
-                      box(width = 5,title = paste("Box:",justPlasma$box[i]), solidHeader = TRUE, collapsible = TRUE,collapsed = TRUE,
-                          p( getBoxSummary_lvl1(myRacks[i],"Plasma",justPlasma$box[i]) ) )
-                    }
+                    box(width = 5,title = paste("Box:",justPlasma$box[i]), solidHeader = TRUE, collapsible = TRUE,collapsed = TRUE,
+                        p( getBoxSummary_lvl1(myRacks[i],"Plasma",justPlasma$box[i]) ) )
+                  }
                   )
                 )),
             box(width = 6,title = "Cells", solidHeader = TRUE, collapsible = TRUE,collapsed = TRUE,
@@ -62,34 +72,18 @@ shinyServer(function(input, output, session) {
     })
   })
   
-  #Create new box page
-  bdlist <<- c()
-  ### Query to pull all blood draw ids, for auto-complete (study specific)
-  observeEvent(input$select_study, {
-    output$autoDraws <- renderUI({
-      autocomplete_input("auto1", "Blood Draws:", c('',getBloodDrawIDs_ByStudy(input$select_study)), max_options = 10)
-    })
-  })
   
-  # observeEvent(input$auto1, {
-  #   bdlist <<- c(bdlist, input$auto1)
-  #   bdlist <<- bdlist[bdlist != ""]
-  #   if(length(bdlist) > 0){
-  #     output$autoListNav <- renderUI({
-  #         radioButtons("picked_bd", "Prepared IDs", choices = bdlist)
-  #     })
-  #   }
-  #   update_autocomplete_input(session,"auto1",value = "")
-  # })
-  
+  ###################################################
+  #####     Freezer Page  - CREATE TAB          #####
+  ###################################################
   output$FreezerPicker_newBox <- renderUI({
     tags$div(title = "The freezer the box is in...", style = "margin-bottom: -10px; margin-top: -5px",
-      selectInput("freezer_newBox", label = "Freezer:", choices = 1:9)
+             selectInput("freezer_newBox", label = "Freezer:", choices = freezerNameList)
     )
   })
   output$RackPicker_newBox <- renderUI({
     tags$div(title = "The rack the new box is in...", style = "margin-bottom: -10px; margin-top: -5px",
-      selectInput("rack_newBox", label = "Rack:", choices = getRacks_ByStudy(input$select_study))
+             selectInput("rack_newBox", label = "Rack:", choices = getRacks_ByStudy(input$select_study))
     )
   })
   observeEvent(input$newRack_newBox, {
@@ -106,7 +100,7 @@ shinyServer(function(input, output, session) {
           width = 3,
           background = "blue",
           height = 90,
-          selectInput("Freezer_newRack", label = "Freezer", choices = 1:9)
+          selectInput("Freezer_newRack", label = "Freezer", choices = freezerNameList)
         ),
         box(
           width = 4,
@@ -120,86 +114,81 @@ shinyServer(function(input, output, session) {
   })
   output$Name_newBox <- renderUI({
     tags$div(title = "The name of the new box...", style = "margin-bottom: -4px; margin-top: -5px",
-      textInput("name_newBox", label = "Box Name:")
+             textInput("name_newBox", label = "Box Name:")
     )
   })
   output$Type_newBox <- renderUI({
     tags$div(title = "The type of tubes to be stored in the box...", style = "margin-bottom: -10px; margin-top: -5px",
-      selectInput("type_newBox", label = "Box Type:", choices = c("Cells", "Plasma"))
+             selectInput("type_newBox", label = "Box Type:", choices = c("Cells", "Plasma"))
     )
   })
-#   output$Dimensions_newBox <- renderUI({
-#     tags$div(title = "The dimensions of the new box...",
-#       tagList(
-#         div(style = "display:inline-block", selectInput("rows_newBox", label = "Rows", choices = 1:10, width = 80)),
-#         div(style = "display:inline-block", selectInput("cols_newBox", label = "Columns", choices = 1:10, width = 80)),
-#         
-#       ),
-#     )
-# 
-#   })
+  #   output$Dimensions_newBox <- renderUI({
+  #     tags$div(title = "The dimensions of the new box...",
+  #       tagList(
+  #         div(style = "display:inline-block", selectInput("rows_newBox", label = "Rows", choices = 1:10, width = 80)),
+  #         div(style = "display:inline-block", selectInput("cols_newBox", label = "Columns", choices = 1:10, width = 80)),
+  #         
+  #       ),
+  #     )
+  # 
+  #   })
   
   output$Grid_newBox <- renderUI({
-    # numCols <- as.numeric(input$cols_newBox)
-    # numRows <- as.numeric(input$rows_newBox)
     numCols <- 10
     numRows <- 10
-    
     div(style = " white-space: nowrap; overflow-x: auto; overflow-y: hidden",
-    lapply(1:numRows, function(j){
-      div(style = "display:block;",
-        lapply(1:numCols, function(i){
-         div(style = "display:inline-block; margin: 0px 0px; ",
-          
-         list(
-           #tags$u(h6(paste0("Slot ", i + ((j-1)*numCols) ))),
-
-           actionButton(paste0("slot", i + ((j-1)*numCols)), label = i + ((j-1)*numCols), width = 92)
-         )
-        )
-      })
-      )
-    })
+        lapply(1:numRows, function(j){
+          div(style = "display:block;",
+              lapply(1:numCols, function(i){
+                div(style = "display:inline-block; margin: 0px 0px; ",
+                    list(
+                      #tags$u(h6(paste0("Slot ", i + ((j-1)*numCols) ))),
+                      actionButton(paste0("slot", i + ((j-1)*numCols)), label = i + ((j-1)*numCols), width = 92)
+                    )
+                )
+              })
+          )
+        })
     )
-
+    
   })
-      output$SlotStart_newBox <- renderUI({
-       tags$div(title = "The starting slot to enter the samples...", #style = "margin-bottom: -4px; margin-top: -5px",
-                textInput("slotStart_newBox", label = "Starting Slot:")
-       )
-     })
-     output$SlotEnd_newBox <- renderUI({
-       tags$div(title = "The ending slot to enter the samples...", #style = "margin-bottom: -4px; margin-top: -5px",
-                textInput("slotEnd_newBox", label = "Ending Slot:")
-       )
-     })
-     
-     observeEvent(input$addSamples_newBox, {
-       slotStart <- as.numeric(input$slotStart_newBox)
-       slotEnd <- as.numeric(input$slotEnd_newBox)
-       
-       #updateActionButton(session, paste0("slot", slotEnd), label = "a")
-        for(i in slotStart:slotEnd){
-          currSlot <- paste0("slot", i)
-          updateActionButton(session, currSlot, label = input$auto1, icon("vial"))
-        }
-     })
+  output$SlotStart_newBox <- renderUI({
+    tags$div(title = "The starting slot to enter the samples...", #style = "margin-bottom: -4px; margin-top: -5px",
+             textInput("slotStart_newBox", label = "Starting Slot:")
+    )
+  })
+  output$SlotEnd_newBox <- renderUI({
+    tags$div(title = "The ending slot to enter the samples...", #style = "margin-bottom: -4px; margin-top: -5px",
+             textInput("slotEnd_newBox", label = "Ending Slot:")
+    )
+  })
+  
+  observeEvent(input$addSamples_newBox, {
+    slotStart <- as.numeric(input$slotStart_newBox)
+    slotEnd <- as.numeric(input$slotEnd_newBox)
+    
+    #updateActionButton(session, paste0("slot", slotEnd), label = "a")
+    for(i in slotStart:slotEnd){
+      currSlot <- paste0("slot", i)
+      updateActionButton(session, currSlot, label = input$auto1, icon("vial"))
+    }
+  })
   
   #Update box page
   
   output$RackPicker_updateBox <- renderUI({
     tags$div(title = "The rack the box is in...", style = "margin-bottom: -10px; margin-top: -5px",
-        selectInput("rack_updateBox", label = "Rack", choices = getRacks_ByStudy(input$select_study))
+             selectInput("rack_updateBox", label = "Rack", choices = getRacks_ByStudy(input$select_study))
     )
   })
   output$BoxPicker_updateBox <- renderUI({
     tags$div(title = "The box to update...", style = "margin-bottom: -10px; margin-top: -5px",
-        selectInput("box_updateBox", label = "Box", choices = getBoxes_ByRack(input$rack_updateBox))
+             selectInput("box_updateBox", label = "Box", choices = getBoxes_ByRack(input$rack_updateBox))
     )
   })
   output$TypePicker_updateBox <- renderUI({
     tags$div(title = "The type of box to update...", style = "margin-bottom: -10px; margin-top: -5px",
-        selectInput("type_updateBox", label = "Box Type", choices = getTypes_byLocation(input$rack_updateBox, input$box_updateBox))
+             selectInput("type_updateBox", label = "Box Type", choices = getTypes_byLocation(input$rack_updateBox, input$box_updateBox))
     )
   })
   
@@ -212,15 +201,15 @@ shinyServer(function(input, output, session) {
         lapply(1:numRows, function(j){
           div(style = "display:block;",
               lapply(1:numCols, function(i){
-                 slotStatus <- getStatus_byLocation(input$rack_updateBox, input$box_updateBox,
+                slotStatus <- getStatus_byLocation(input$rack_updateBox, input$box_updateBox,
                                                    i + ((j-1)*numCols), input$type_updateBox)
-                 if(nrow(slotStatus) > 0){
-                   if(slotStatus == "Frozen"){
-                     backgroundColor <- "green"
-                   }else if(slotStatus == "Pulled"){
-                     backgroundColor <- "red"
-                   }
-                 }
+                if(nrow(slotStatus) > 0){
+                  if(slotStatus == "Frozen"){
+                    backgroundColor <- "green"
+                  }else if(slotStatus == "Pulled"){
+                    backgroundColor <- "red"
+                  }
+                }
                 
                 div(style = "display:inline-block; margin: 0px 0px -15px 0px; ",
                     list(
@@ -228,10 +217,10 @@ shinyServer(function(input, output, session) {
                         width = 98, 
                         background = backgroundColor,
                         div(style = "display:inline-block; margin: -15px -5px 0px -5px; ",
-                        tags$u(h6(paste0("Slot ", i + ((j-1)*numCols) ))),
-                        actionButton(paste0("slot", i + ((j-1)*numCols)), 
-                                   label = getSamples_byLocation(input$rack_updateBox, input$box_updateBox,
-                                                                 i + ((j-1)*numCols), input$type_updateBox), width = 90)
+                            tags$u(h6(paste0("Slot ", i + ((j-1)*numCols) ))),
+                            actionButton(paste0("slot", i + ((j-1)*numCols)), 
+                                         label = getSamples_byLocation(input$rack_updateBox, input$box_updateBox,
+                                                                       i + ((j-1)*numCols), input$type_updateBox), width = 90)
                         )
                       )
                     )
@@ -279,11 +268,11 @@ shinyServer(function(input, output, session) {
       ),
       if (failed)
         div(tags$b("Error! Unable to update database", style = "color: red;")),
-        
+      
       footer = tagList(
         modalButton("Cancel"),
         actionButton("ok_drawrecord", "OK")
-        )
+      )
     )
   }
   
@@ -293,7 +282,7 @@ shinyServer(function(input, output, session) {
     print(slObj)
     showModal(newDrawModal(1, label, slObj))
   })
-
+  
   
   
   

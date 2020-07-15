@@ -25,9 +25,19 @@ Using SQLite3 for persistent data storage & management. [Tutorial](https://www.g
 
 1. Redesign footer [idea1](https://agentestudio.com/blog/website-footer-design), [idea2](https://www.orbitmedia.com/blog/website-footer-design-best-practices/)
 
+2. for blood draw event, add cell concentration. Same for all tubes - just one.
+
+3. for new box page,  Starting Slot & number of tubes/vials.
+
+4. create box, needs stashing capabilites.
+
+5. add date field, default to today. add freezer to update page.
+
 
 ### Dependancies
 
 Listing out R Library dependancies, that are already integrated.
 
 1. Web UI customizations [dqshiny](https://github.com/daqana/dqshiny)
+
+
