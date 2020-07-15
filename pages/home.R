@@ -52,13 +52,13 @@ homepage <- dashboardPage(
                     fill = TRUE, icon = icon("vial")),
           ),
         ),
-        h2("Module Access"),
+        h2("Database Modules"),
           
         #Creates a box for each of the tabs found on the sidebar
         fluidRow(
           box(
             width = 6,
-            title = "Add Patient",
+            title = "Add A Patient",
             solidHeader = TRUE, collapsible = TRUE, 
             box(
               width = 12,
@@ -68,7 +68,7 @@ homepage <- dashboardPage(
           ),
           box(
             width = 6,
-            title = "Add Blood Draw",
+            title = "Add Blood Draw Event",
             solidHeader = TRUE, collapsible = TRUE, 
             box(
               width = 12,
@@ -87,6 +87,16 @@ homepage <- dashboardPage(
               p("Description of data")
             ),
             actionButton(inputId = "changeDataInfo", label = "Open Module")
+        ),
+        box(
+          width = 6,
+          title = "Move A Box",
+          solidHeader = TRUE, collapsible = TRUE, 
+          box(
+            width = 12,
+            p("This module is for moving an existing box from one freezer & rack to another.")
+          ),
+          actionButton(inputId = "changeTask2", label = "Open Module")
         )
         )
 
@@ -94,13 +104,9 @@ homepage <- dashboardPage(
       #Sample pages for the other tabs
       tabItem(
         tabName = "task_1",
-        
         fluidPage(
-          
         h3("Add New Patient"),
-        
         renderUI(test1),
-        
         box(
           width = 12,
           background = "blue",
@@ -167,11 +173,8 @@ homepage <- dashboardPage(
       ),
       tabItem(
         tabName = "task_2",
-        
         fluidPage(
-        
         h3("Add Blood Draw Event"),
-        
         box(
           width = 12,
           background = "blue",
