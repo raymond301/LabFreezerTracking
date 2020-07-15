@@ -104,13 +104,9 @@ homepage <- dashboardPage(
       #Sample pages for the other tabs
       tabItem(
         tabName = "task_1",
-        
         fluidPage(
-          
         h3("Add New Patient"),
-        
         renderUI(test1),
-        
         box(
           width = 12,
           background = "blue",
@@ -177,11 +173,8 @@ homepage <- dashboardPage(
       ),
       tabItem(
         tabName = "task_2",
-        
         fluidPage(
-        
         h3("Add Blood Draw Event"),
-        
         box(
           width = 12,
           background = "blue",

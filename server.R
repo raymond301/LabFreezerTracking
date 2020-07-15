@@ -150,8 +150,8 @@ shinyServer(function(input, output, session) {
           )
         })
     )
-    
   })
+  
   output$SlotStart_newBox <- renderUI({
     tags$div(title = "The starting slot to enter the samples...", #style = "margin-bottom: -4px; margin-top: -5px",
              textInput("slotStart_newBox", label = "Starting Slot:")
@@ -174,8 +174,10 @@ shinyServer(function(input, output, session) {
     }
   })
   
-  #Update box page
   
+  ###################################################
+  #####     Freezer Page  - UPDATE TAB          #####
+  ###################################################
   output$RackPicker_updateBox <- renderUI({
     tags$div(title = "The rack the box is in...", style = "margin-bottom: -10px; margin-top: -5px",
              selectInput("rack_updateBox", label = "Rack", choices = getRacks_ByStudy(input$select_study))

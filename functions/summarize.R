@@ -1,8 +1,5 @@
 
 getBoxSummary_lvl1 <- function(rid, tid, bid){
- # rid = "TCR1" 
- # bid = "11" 
- # tid = "Plasma"
   df <- getBox_byIDs(rid, tid, bid)
  ## as.Date(df$store_date) ## NEED TO FIX DATES
   tbl <- as.data.frame(table(df$status))
