@@ -137,35 +137,39 @@ shinyServer(function(input, output, session) {
     numCols <- 10
     numRows <- 10
     div(style = " white-space: nowrap; overflow-x: auto; overflow-y: hidden",
-        lapply(1:numRows, function(j){
-          div(style = "display:block;",
-              lapply(1:numCols, function(i){
-                div(style = "display:inline-block; margin: 0px 0px; ",
-                    list(
-                      #tags$u(h6(paste0("Slot ", i + ((j-1)*numCols) ))),
-                      actionButton(paste0("slot", i + ((j-1)*numCols)), label = i + ((j-1)*numCols), width = 92)
-                    )
-                )
-              })
-          )
-        })
+
+    lapply(1:numRows, function(j){
+      div(style = "display:block;",
+        lapply(1:numCols, function(i){
+         div(style = "display:inline-block; margin: 0px 0px; ",
+          
+         list(
+           #tags$u(h6(paste0("Slot ", i + ((j-1)*numCols) ))),
+
+           actionButton(paste0("slot", i + ((j-1)*numCols)), label = i + ((j-1)*numCols), width = 100)
+         )
+        )
+      })
+      )
+    })
+
     )
   })
   
   output$SlotStart_newBox <- renderUI({
-    tags$div(title = "The starting slot to enter the samples...", #style = "margin-bottom: -4px; margin-top: -5px",
+    tags$div(title = "The starting slot to enter the samples...", style = "margin-right: -15px;",
              textInput("slotStart_newBox", label = "Starting Slot:")
     )
   })
-  output$SlotEnd_newBox <- renderUI({
-    tags$div(title = "The ending slot to enter the samples...", #style = "margin-bottom: -4px; margin-top: -5px",
-             textInput("slotEnd_newBox", label = "Ending Slot:")
+  output$NumTubes_newBox <- renderUI({
+    tags$div(title = "The number of slots to enter samples into...", style = "margin-left: -20px;",
+             textInput("numTubes_newBox", label = "# of Samples:")
     )
   })
   
   observeEvent(input$addSamples_newBox, {
     slotStart <- as.numeric(input$slotStart_newBox)
-    slotEnd <- as.numeric(input$slotEnd_newBox)
+    slotEnd <- slotStart + as.numeric(input$numTubes_newBox) - 1
     
     #updateActionButton(session, paste0("slot", slotEnd), label = "a")
     for(i in slotStart:slotEnd){
