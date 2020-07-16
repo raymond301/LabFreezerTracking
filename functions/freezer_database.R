@@ -49,6 +49,9 @@ getSlot_byLocation <- function(rid, bid, sid, tid){
 }
 
 
+getEntireRack_byIDs <- function(fid, rid){
+  return( dbGetQuery(fCon, paste0("SELECT DISTINCT box FROM freezer_slot WHERE freezer_name = \"",fid,"\" AND rack = \"",rid,"\"")) )
+}
 
 # get a list of all tables inside this dataabase
 # dbListTables(con)
