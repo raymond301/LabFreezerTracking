@@ -21,6 +21,26 @@ shinyServer(function(input, output, session) {
     shinydashboard::updateTabItems(session, "explorertabs", "datainfo")
   })
   
+  observeEvent(input$submit_newPatient, {
+    newRow <- get_ColumnNames()
+    
+    name <- input$patientName_newPatient
+    birthDate <- as.numeric(input$birthDate_newPatient)
+    clinicalId <- input$clinicalId_newPatient
+    mortality <- input$mortality_newPatient
+    gender <- input$gender_newPatient
+    clinicalId2 <- as.numeric(input$clinicalId2_newPatient)
+    deathDate <- as.numeric(input$deathDate_newPatient)
+    vipStatus <- input$vipStatus_newPatient
+    patientComments <- input$comments_newPatient
+    
+    newRow <- newRow %>% add_row(clinical_id = clinicalId, last_name = name, secondary_id = clinicalId2,
+                                 deceased = mortality, vip_flag = vipStatus, sex = gender,
+                                 date_of_birth = birthDate, date_of_death = deathDate, comments = patientComments)
+    add_NewPatient(newRow)
+    output$submitMessage_newPatient <- renderText({"Patient Added"})
+  })
+  
   
   
   ###################################################

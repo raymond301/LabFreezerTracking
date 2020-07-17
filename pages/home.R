@@ -124,7 +124,7 @@ homepage <- dashboardPage(
             box(
               width = 4,
               background = "blue",
-              numericInput(inputId = "clinicalId_newPatient", label = "Clinical ID Number", value = NULL)
+              textInput(inputId = "clinicalId_newPatient", label = "Clinical ID Number")
             )
           ),
           fluidRow(
@@ -132,7 +132,7 @@ homepage <- dashboardPage(
               width = 4,
               background = "blue",
               radioButtons(inputId = "mortality_newPatient", label = "Mortality Status:", 
-                           choices = c("Alive" = "A", "Dead" = "D", "Unknown" = "U"), selected = "U")
+                           choices = c("Alive" = "N", "Dead" = "Y", "Unknown" = "U"), selected = "U")
             ),
             box(
               width = 4,
@@ -167,7 +167,8 @@ homepage <- dashboardPage(
               
             )
           ),
-          actionButton(inputId = "submit_newPatient", label = "Submit")
+          actionButton(inputId = "submit_newPatient", label = "Submit"),
+          uiOutput("submitMessage_newPatient")
         )
         )
       ),
