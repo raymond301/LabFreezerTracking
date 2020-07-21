@@ -188,7 +188,7 @@ homepage <- dashboardPage(
             box(
               width = 3,
               background = "blue",
-              textInput(inputId = "studyId_newDraw", label = "Study ID")
+              uiOutput("StudyPicker_newDraw")
             ),
             box(
               width = 3,

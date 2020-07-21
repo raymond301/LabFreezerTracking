@@ -21,24 +21,71 @@ shinyServer(function(input, output, session) {
     shinydashboard::updateTabItems(session, "explorertabs", "datainfo")
   })
   
+  ###################################################
+  #####          Home Page - Patient Page       #####
+  ###################################################
+  
+  output$StudyPicker_newDraw <- renderUI({
+      selectInput(inputId = "studyId_newDraw", label = "Study ID", choices = get_StudyList())
+  })
+  #adds a new patient to the database
   observeEvent(input$submit_newPatient, {
+
     newRow <- get_ColumnNames()
+
+    # if("clinical_id" %in% colnames(newRow)){
+    #   cat("found: clinical_id")
+    # }else{
+    #   cat("not found: clinical_id \n")
+    # }
+    last_name <- input$patientName_newPatient
+    date_of_birth <- as.numeric(input$birthDate_newPatient)
+    clinical_id <- input$clinicalId_newPatient
+    deceased <- input$mortality_newPatient
+    sex <- input$gender_newPatient
+    secondary_id <- as.numeric(input$clinicalId2_newPatient)
+    date_of_death <- as.numeric(input$deathDate_newPatient)
+    vip_flag <- input$vipStatus_newPatient
+    comments <- input$comments_newPatient
     
-    name <- input$patientName_newPatient
-    birthDate <- as.numeric(input$birthDate_newPatient)
-    clinicalId <- input$clinicalId_newPatient
-    mortality <- input$mortality_newPatient
-    gender <- input$gender_newPatient
-    clinicalId2 <- as.numeric(input$clinicalId2_newPatient)
-    deathDate <- as.numeric(input$deathDate_newPatient)
-    vipStatus <- input$vipStatus_newPatient
-    patientComments <- input$comments_newPatient
+    dbColumns <- colnames(newRow)
+    inputColumns <- c("last_name", "date_of_birth", "clinical_id", "deceased", "sex", "secondary_id", 
+                      "date_of_death", "vip_flag", "comments")
     
-    newRow <- newRow %>% add_row(clinical_id = clinicalId, last_name = name, secondary_id = clinicalId2,
-                                 deceased = mortality, vip_flag = vipStatus, sex = gender,
-                                 date_of_birth = birthDate, date_of_death = deathDate, comments = patientComments)
-    add_NewPatient(newRow)
-    output$submitMessage_newPatient <- renderText({"Patient Added"})
+    cat("Valid Columns: ")
+    cat(intersect(dbColumns, inputColumns))
+    cat("\n")
+    
+    cat("In database, not input: ")
+    cat(setdiff(dbColumns, inputColumns))
+    cat("\n")
+    
+    cat("In input, not database: ")
+    cat(setdiff(inputColumns, dbColumns))
+    cat("\n")
+    
+    
+    #Check for valid inputs
+    if(!grepl("[[:punct:]]|[[:digit:]]", last_name)){
+      if(!is.na(as.numeric(clinical_id))){
+        if(date_of_death > date_of_birth){
+          
+          newRow <- newRow %>% add_row(clinical_id = clinical_id, last_name = last_name, secondary_id = secondary_id,
+                                     deceased = deceased, vip_flag = vip_flag, sex = sex,
+                                     date_of_birth = date_of_birth, date_of_death = date_of_death, comments = comments)
+          add_NewPatient(newRow)
+          output$submitMessage_newPatient <- renderText({"Patient Added"})
+          
+        }else{
+          output$submitMessage_newPatient <- renderText({"ERROR: Birth Date must be before Death Date"})
+        }
+      }else{
+        output$submitMessage_newPatient <- renderText({"ERROR: Clinical ID must be a number (don't include hyphens)"})
+      }
+    }else{
+      output$submitMessage_newPatient <- renderText({"ERROR: Patient Name contains invalid characters (numbers or special characters)"})
+    }
+
   })
   
   
