@@ -52,6 +52,11 @@ shinyServer(function(input, output, session) {
     inputColumns <- c("last_name", "date_of_birth", "clinical_id", "deceased", "sex", "secondary_id", 
                       "date_of_death", "vip_flag", "comments")
     
+    
+    inputDF <- data.frame(last_name, date_of_birth, clinical_id, deceased, sex, secondary_id,
+                          date_of_death, vip_flag, comments)
+    colnames(inputDF) <- inputColumns
+    
     cat("Valid Columns: ")
     cat(intersect(dbColumns, inputColumns))
     cat("\n")
@@ -66,26 +71,32 @@ shinyServer(function(input, output, session) {
     
     
     #Check for valid inputs
-    if(!grepl("[[:punct:]]|[[:digit:]]", last_name)){
-      if(!is.na(as.numeric(clinical_id))){
-        if(date_of_death > date_of_birth){
-          
-          newRow <- newRow %>% add_row(clinical_id = clinical_id, last_name = last_name, secondary_id = secondary_id,
-                                     deceased = deceased, vip_flag = vip_flag, sex = sex,
-                                     date_of_birth = date_of_birth, date_of_death = date_of_death, comments = comments)
-          add_NewPatient(newRow)
-          output$submitMessage_newPatient <- renderText({"Patient Added"})
-          
+    if(setequal(union(inputColumns, dbColumns), dbColumns)){
+      if(!grepl("[[:punct:]]|[[:digit:]]", last_name)){
+        if(!is.na(as.numeric(clinical_id))){
+          if(date_of_death > date_of_birth){
+            
+            # newRow <- newRow %>% add_row(clinical_id = clinical_id, last_name = last_name, secondary_id = secondary_id,
+            #                            deceased = deceased, vip_flag = vip_flag, sex = sex,
+            #                            date_of_birth = date_of_birth, date_of_death = date_of_death, comments = comments)
+            
+            newRow <- bind_rows(newRow, inputDF)
+            
+            add_NewPatient(newRow)
+            output$submitMessage_newPatient <- renderText({"Patient Added"})
+            
+          }else{
+            output$submitMessage_newPatient <- renderText({"ERROR: Birth Date must be before Death Date"})
+          }
         }else{
-          output$submitMessage_newPatient <- renderText({"ERROR: Birth Date must be before Death Date"})
+          output$submitMessage_newPatient <- renderText({"ERROR: Clinical ID must be a number (don't include hyphens)"})
         }
       }else{
-        output$submitMessage_newPatient <- renderText({"ERROR: Clinical ID must be a number (don't include hyphens)"})
+        output$submitMessage_newPatient <- renderText({"ERROR: Patient Name contains invalid characters (numbers or special characters)"})
       }
     }else{
-      output$submitMessage_newPatient <- renderText({"ERROR: Patient Name contains invalid characters (numbers or special characters)"})
+      output$submitMessage_newPatient <- renderText({"ERROR: Contact Developer. Input ID not found in database"})
     }
-
   })
   
   
