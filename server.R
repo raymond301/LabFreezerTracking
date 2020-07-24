@@ -17,6 +17,9 @@ shinyServer(function(input, output, session) {
   observeEvent(input$changeTask2, {
     shinydashboard::updateTabItems(session, "explorertabs", "task_2")
   })
+  observeEvent(input$changeTask3, {
+    shinydashboard::updateTabItems(session, "explorertabs", "task_3")
+  })
   observeEvent(input$changeDataInfo, {
     shinydashboard::updateTabItems(session, "explorertabs", "datainfo")
   })
@@ -168,6 +171,32 @@ shinyServer(function(input, output, session) {
     }else{
       output$submitMessage_newDraw <- renderText({"ERROR. Contact Developer. Input ID not found in database"})
     }
+  })
+  
+  ###################################################
+  #####          Home Page - Move Box Page      #####
+  ###################################################
+  
+  output$StudyPicker_moveBox <- renderUI({
+    selectInput(inputId = "study_moveBox", label = "Current Study:", choices = get_StudyList() )
+  })
+  output$currentRack_moveBox <- renderUI({
+    selectInput("currentRack_moveBox", label = "Rack:", choices = getRacks_ByStudy(input$study_moveBox))
+  })
+  output$box_moveBox <- renderUI({
+    selectInput("box_moveBox", label = "Box:", choices = getBoxes_ByRack(input$currentRack_moveBox))
+  })
+  output$type_moveBox <- renderUI({
+    selectInput("type_moveBox", label = "Box Type:", choices = getTypes_byLocation(input$currentRack_moveBox, input$box_moveBox))
+  })
+  output$newRack_moveBox <- renderUI({
+    selectInput("newRack_moveBox", label = "Rack:", choices = getRacks_ByStudy(input$study_moveBox))
+  })
+  output$currentFreezer_moveBox <- renderUI({
+    selectInput("currentFreezer_moveBox", label = "Freezer:", choices = freezerNameList)
+  })
+  output$newFreezer_moveBox <- renderUI({
+    selectInput("newFreezer_moveBox", label = "Freezer:", choices = freezerNameList)
   })
   
   ###################################################

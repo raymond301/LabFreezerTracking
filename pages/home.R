@@ -101,7 +101,7 @@ homepage <- dashboardPage(
             width = 12,
             p("This module is for moving an existing box from one freezer & rack to another.")
           ),
-          actionButton(inputId = "changeTask2", label = "Open Module")
+          actionButton(inputId = "changeTask3", label = "Open Module")
         )
         )
 
@@ -425,7 +425,30 @@ homepage <- dashboardPage(
       ),
       tabItem(
         tabName = "task_3",
-        h3("Move a box")
+        
+        h3("Move a box"),
+        uiOutput("StudyPicker_moveBox"),
+        
+        column(
+          width = 3,
+          
+          tags$u(
+            h4("Current Box Information:")
+          ),
+          uiOutput("currentFreezer_moveBox"),
+          uiOutput("currentRack_moveBox"),
+          uiOutput("box_moveBox"),
+          uiOutput("type_moveBox"),
+          actionButton("submit_moveBox", "Submit")
+        ),
+        column(
+          width = 3,
+          tags$u(
+            h4("New Box Location:")
+          ),
+          uiOutput("newFreezer_moveBox"),
+          uiOutput("newRack_moveBox")
+        )
       ),
       tabItem(
         tabName = "tab_extra",
