@@ -5,7 +5,7 @@ get_PatientCount <- function(){
   return( dbGetQuery(pCon, "SELECT COUNT(DISTINCT clinical_id) from patient;")[[1]] )
 }
 
-get_ColumnNames <- function(){
+get_PatientColumnNames <- function(){
   return(dbGetQuery(pCon,"SELECT * FROM patient LIMIT 0"))
 }
 

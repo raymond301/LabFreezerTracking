@@ -18,6 +18,11 @@ homepage <- dashboardPage(
                  "Add Blood Draw",
                  tabName = "task_2",
                  icon = icon("cog")
+               ),
+               menuSubItem(
+                 "Move a Box",
+                 tabName = "task_3",
+                 icon = icon("cog")
                )
       ),
       menuItem("Data Description",
@@ -183,7 +188,7 @@ homepage <- dashboardPage(
             box(
               width = 3,
               background = "blue",
-              numericInput(inputId = "clinicalId_newDraw", label = "Patient Clinical Number", value = NULL)
+              textInput(inputId = "drawId_newDraw", label = "Draw ID")
             ),
             box(
               width = 3,
@@ -193,12 +198,12 @@ homepage <- dashboardPage(
             box(
               width = 3,
               background = "blue",
-              numericInput(inputId = "totalTubes_newDraw", label = "Total number of tubes", value = 0)
+              numericInput(inputId = "totalTubes_newDraw", label = "Total number of tubes", value = 0, min = 0)
             ),
             box(
               width = 3,
               background = "blue",
-              numericInput(inputId = "totalVolume_newDraw", label = "Total volume (mL)", value = 0)
+              numericInput(inputId = "totalVolume_newDraw", label = "Total volume (mL)", value = 0, min = 0)
             )
           ),
           fluidRow(
@@ -235,12 +240,12 @@ homepage <- dashboardPage(
                 box(
                   width = 6,
                   title = "Number of Tubes",
-                  numericInput(inputId = "sodiumTubes_newDraw", label = NULL, value = 0)
+                  numericInput(inputId = "sodiumTubes_newDraw", label = NULL, value = 0, min = 0)
                 ),
                 box(
                   width = 6,
                   title = "Total Volume (mL)",
-                  numericInput(inputId = "sodiumVolume_newDraw", label = NULL, value = 0)
+                  numericInput(inputId = "sodiumVolume_newDraw", label = NULL, value = 0, min = 0)
                 )
               )
             ),
@@ -252,12 +257,12 @@ homepage <- dashboardPage(
                 box(
                   width = 6,
                   title = "Number of Tubes",
-                  numericInput(inputId = "EDTATubes_newDraw", label = NULL, value = 0)
+                  numericInput(inputId = "EDTATubes_newDraw", label = NULL, value = 0, min = 0)
                 ),
                 box(
                   width = 6,
                   title = "Total Volume (mL)",
-                  numericInput(inputId = "EDTAVolume_newDraw", label = NULL, value = 0)
+                  numericInput(inputId = "EDTAVolume_newDraw", label = NULL, value = 0, min = 0)
                 )
               )
             ),
@@ -272,12 +277,12 @@ homepage <- dashboardPage(
                 box(
                   width = 6,
                   title = "Number of Tubes",
-                  numericInput(inputId = "wholeTubes_newDraw", label = NULL, value = 0)
+                  numericInput(inputId = "wholeTubes_newDraw", label = NULL, value = 0, min = 0)
                 ),
                 box(
                   width = 6,
                   title = "Total Volume (mL)",
-                  numericInput(inputId = "wholeVolume_newDraw", label = NULL, value = 0)
+                  numericInput(inputId = "wholeVolume_newDraw", label = NULL, value = 0, min = 0)
                 )
               )
             ),
@@ -289,12 +294,12 @@ homepage <- dashboardPage(
                 box(
                   width = 6,
                   title = "Number of Tubes",
-                  numericInput(inputId = "streckTubes_newDraw", label = NULL, value = 0)
+                  numericInput(inputId = "streckTubes_newDraw", label = NULL, value = 0, min = 0)
                 ),
                 box(
                   width = 6,
                   title = "Total Volume (mL)",
-                  numericInput(inputId = "streckVolume_newDraw", label = NULL, value = 0)
+                  numericInput(inputId = "streckVolume_newDraw", label = NULL, value = 0, min = 0)
                 )
               )
             ),
@@ -309,12 +314,12 @@ homepage <- dashboardPage(
                 box(
                   width = 6,
                   title = "Number of Tubes",
-                  numericInput(inputId = "ACDTubes_newDraw", label = NULL, value = 0)
+                  numericInput(inputId = "ACDTubes_newDraw", label = NULL, value = 0, min = 0)
                 ),
                 box(
                   width = 6,
                   title = "Total Volume (mL)",
-                  numericInput(inputId = "ACDVolume_newDraw", label = NULL, value = 0)
+                  numericInput(inputId = "ACDVolume_newDraw", label = NULL, value = 0, min = 0)
                 )
               )
             ),
@@ -326,12 +331,12 @@ homepage <- dashboardPage(
                 box(
                   width = 6,
                   title = "Number of Tubes",
-                  numericInput(inputId = "otherTubes_newDraw", label = NULL, value = 0)
+                  numericInput(inputId = "otherTubes_newDraw", label = NULL, value = 0, min = 0)
                 ),
                 box(
                   width = 6,
                   title = "Total Volume (mL)",
-                  numericInput(inputId = "otherVolume_newDraw", label = NULL, value = 0)
+                  numericInput(inputId = "otherVolume_newDraw", label = NULL, value = 0, min = 0)
                 )
               )
             ),
@@ -346,13 +351,13 @@ homepage <- dashboardPage(
                   width = 6,
                   status = "danger",
                   background = "blue",
-                  numericInput(inputId = "plasmaTubes_newDraw", label = "Number of Tubes", value = 0)
+                  numericInput(inputId = "plasmaTubes_newDraw", label = "Number of Tubes", value = 0, min = 0)
                 ),
                 box(
                   width = 6,
                   status = "danger",
                   background = "blue",
-                  numericInput(inputId = "plasmaVolume_newDraw", label = "Total Volume (mL)", value = 0)
+                  numericInput(inputId = "plasmaVolume_newDraw", label = "Total Volume (mL)", value = 0, min = 0)
                 )
               ),
             ),
@@ -365,13 +370,13 @@ homepage <- dashboardPage(
                   width = 6,
                   status = "warning",
                   background = "blue",
-                  numericInput(inputId = "serumTubes_newDraw", label = "Number of Tubes", value = 0)
+                  numericInput(inputId = "serumTubes_newDraw", label = "Number of Tubes", value = 0, min = 0)
                 ),
                 box(
                   width = 6,
                   status = "warning",
                   background = "blue",
-                  numericInput(inputId = "serumVolume_newDraw", label = "Total Volume (mL)", value = 0)
+                  numericInput(inputId = "serumVolume_newDraw", label = "Total Volume (mL)", value = 0, min = 0)
                 )
               )
             ),
@@ -384,19 +389,19 @@ homepage <- dashboardPage(
                   width = 4,
                   status = "success",
                   background = "blue",
-                  numericInput(inputId = "cellTubes_newDraw", label = "Number of Tubes", value = 0)
+                  numericInput(inputId = "cellTubes_newDraw", label = "Number of Tubes", value = 0, min = 0)
                 ),
                 box(
                   width = 4,
                   status = "success",
                   background = "blue",
-                  numericInput(inputId = "cellVolume_newDraw", label = "Total Volume (mL)", value = 0)
+                  numericInput(inputId = "cellVolume_newDraw", label = "Total Volume (mL)", value = 0, min = 0)
                 ),
                 box(
                   width = 4,
                   status = "success",
                   background = "blue",
-                  numericInput(inputId = "cellConcentration_newDraw", label = "Concentration (Cells/mL)", value = 0)
+                  numericInput(inputId = "cellConcentration_newDraw", label = "Concentration (Cells/mL)", value = 0, min = 0)
                 )
               ),
             )
@@ -409,14 +414,18 @@ homepage <- dashboardPage(
                             placeholder = "Add additional comments...")
             )
           ),
-          actionButton(inputId = "submit_newDraw", label = "Submit")
-          
+          actionButton(inputId = "submit_newDraw", label = "Submit"),
+          uiOutput("submitMessage_newDraw")
         )
         )
       ),
       tabItem(
         tabName = "datainfo",
         h1("Data Description")
+      ),
+      tabItem(
+        tabName = "task_3",
+        h3("Move a box")
       ),
       tabItem(
         tabName = "tab_extra",

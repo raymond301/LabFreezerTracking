@@ -25,36 +25,33 @@ shinyServer(function(input, output, session) {
   #####          Home Page - Patient Page       #####
   ###################################################
   
-  output$StudyPicker_newDraw <- renderUI({
-      selectInput(inputId = "studyId_newDraw", label = "Study ID", choices = get_StudyList())
-  })
   #adds a new patient to the database
   observeEvent(input$submit_newPatient, {
 
-    newRow <- get_ColumnNames()
+    newRow <- get_PatientColumnNames()
 
     # if("clinical_id" %in% colnames(newRow)){
     #   cat("found: clinical_id")
     # }else{
     #   cat("not found: clinical_id \n")
     # }
-    last_name <- input$patientName_newPatient
-    date_of_birth <- as.numeric(input$birthDate_newPatient)
-    clinical_id <- input$clinicalId_newPatient
-    deceased <- input$mortality_newPatient
-    sex <- input$gender_newPatient
-    secondary_id <- as.numeric(input$clinicalId2_newPatient)
-    date_of_death <- as.numeric(input$deathDate_newPatient)
-    vip_flag <- input$vipStatus_newPatient
-    comments <- input$comments_newPatient
-    
+    inputDF <- data.frame(
+      last_name <- input$patientName_newPatient,
+      date_of_birth <- as.numeric(input$birthDate_newPatient),
+      clinical_id <- input$clinicalId_newPatient,
+      deceased <- input$mortality_newPatient,
+      sex <- input$gender_newPatient,
+      secondary_id <- as.numeric(input$clinicalId2_newPatient),
+      date_of_death <- as.numeric(input$deathDate_newPatient),
+      vip_flag <- input$vipStatus_newPatient,
+      comments <- input$comments_newPatient
+    )
     dbColumns <- colnames(newRow)
     inputColumns <- c("last_name", "date_of_birth", "clinical_id", "deceased", "sex", "secondary_id", 
                       "date_of_death", "vip_flag", "comments")
     
-    
-    inputDF <- data.frame(last_name, date_of_birth, clinical_id, deceased, sex, secondary_id,
-                          date_of_death, vip_flag, comments)
+    # inputDF <- data.frame(last_name, date_of_birth, clinical_id, deceased, sex, secondary_id,
+    #                       date_of_death, vip_flag, comments)
     colnames(inputDF) <- inputColumns
     
     cat("Valid Columns: ")
@@ -99,7 +96,79 @@ shinyServer(function(input, output, session) {
     }
   })
   
+  ###################################################
+  #####         Home Page - Blood Draw Page     #####
+  ###################################################
   
+  output$StudyPicker_newDraw <- renderUI({
+    selectInput(inputId = "studyId_newDraw", label = "Study ID", choices = get_StudyList())
+  })
+  
+  observeEvent(input$submit_newDraw, {
+    
+    inputDF <- data.frame(
+      
+      draw_id <- input$drawId_newDraw,
+      study_name <- input$studyId_newDraw,
+      total_tubes_received <- input$totalTubes_newDraw,
+      total_volume_received <- as.character(input$totalVolume_newDraw),
+      draw_date <- as.numeric(input$date_newDraw),
+      draw_time <- as.numeric(input$time_newDraw),
+      process_date<- as.numeric(input$processDate_newDraw),
+      process_time <- as.numeric(input$processTime_newDraw),
+      
+      num_sodium_heparin_tubes <- input$sodiumTubes_newDraw,
+      num_of_edta_tubes <- input$EDTATubes_newDraw,
+      num_whole_blood_tubes <- input$wholeTubes_newDraw,
+      num_streck_tubes <- input$streckTubes_newDraw,
+      num_acd_tubes <- input$ACDTubes_newDraw,
+      num_other_tubes <- input$otherTubes_newDraw,
+      
+      processed_plasma_tubes <- input$plasmaTubes_newDraw,
+      processed_plasma_volume <- input$plasmaVolume_newDraw,
+      processed_serum_tubes <- input$serumTubes_newDraw,
+      processed_serum_volume <- input$serumVolume_newDraw,
+      processed_cell_tubes <- input$cellTubes_newDraw,
+      processed_cell_volume <- input$cellVolume_newDraw,
+      
+      comments <- input$comments_newDraw
+    )
+    
+    inputColumns <- c("draw_id", "study_name", "total_tubes_received", "total_volume_received", "draw_date",
+                      "draw_time", "process_date", "process_time", "num_sodium_heparin_tubes", "num_of_edta_tubes",
+                      "num_whole_blood_tubes", "num_streck_tubes", "num_acd_tubes", "num_other_tubes",
+                      "processed_plasma_tubes", "processed_plasma_volume", "processed_serum_tubes",
+                      "processed_serum_volume", "processed_cell_tubes", "processed_cell_volume", "comments")
+    
+    colnames(inputDF) <- inputColumns
+    
+    newRow <- get_FreezerColumnNames()
+    dbColumns <- colnames(newRow)
+    
+    cat("Valid Columns: ")
+    cat(intersect(dbColumns, inputColumns))
+    cat("\n")
+    
+    cat("In database, not input: ")
+    cat(setdiff(dbColumns, inputColumns))
+    cat("\n")
+    
+    cat("In input, not database: ")
+    cat(setdiff(inputColumns, dbColumns))
+    cat("\n")
+    
+    
+    if(setequal(union(inputColumns, dbColumns), dbColumns)){
+      
+      newRow <- bind_rows(newRow, inputDF)
+      add_NewDraw(newRow)
+      
+      output$submitMessage_newDraw <- renderText({"Blood Draw Added"})
+      
+    }else{
+      output$submitMessage_newDraw <- renderText({"ERROR. Contact Developer. Input ID not found in database"})
+    }
+  })
   
   ###################################################
   #####             Freezer Page                #####
