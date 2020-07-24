@@ -17,31 +17,187 @@ shinyServer(function(input, output, session) {
   observeEvent(input$changeTask2, {
     shinydashboard::updateTabItems(session, "explorertabs", "task_2")
   })
+  observeEvent(input$changeTask3, {
+    shinydashboard::updateTabItems(session, "explorertabs", "task_3")
+  })
   observeEvent(input$changeDataInfo, {
     shinydashboard::updateTabItems(session, "explorertabs", "datainfo")
   })
   
+  ###################################################
+  #####          Home Page - Patient Page       #####
+  ###################################################
+  
+  #adds a new patient to the database
   observeEvent(input$submit_newPatient, {
-    newRow <- get_ColumnNames()
+
+    newRow <- get_PatientColumnNames()
+
+    # if("clinical_id" %in% colnames(newRow)){
+    #   cat("found: clinical_id")
+    # }else{
+    #   cat("not found: clinical_id \n")
+    # }
+    inputDF <- data.frame(
+      last_name <- input$patientName_newPatient,
+      date_of_birth <- as.numeric(input$birthDate_newPatient),
+      clinical_id <- input$clinicalId_newPatient,
+      deceased <- input$mortality_newPatient,
+      sex <- input$gender_newPatient,
+      secondary_id <- as.numeric(input$clinicalId2_newPatient),
+      date_of_death <- as.numeric(input$deathDate_newPatient),
+      vip_flag <- input$vipStatus_newPatient,
+      comments <- input$comments_newPatient
+    )
+    dbColumns <- colnames(newRow)
+    inputColumns <- c("last_name", "date_of_birth", "clinical_id", "deceased", "sex", "secondary_id", 
+                      "date_of_death", "vip_flag", "comments")
     
-    name <- input$patientName_newPatient
-    birthDate <- as.numeric(input$birthDate_newPatient)
-    clinicalId <- input$clinicalId_newPatient
-    mortality <- input$mortality_newPatient
-    gender <- input$gender_newPatient
-    clinicalId2 <- as.numeric(input$clinicalId2_newPatient)
-    deathDate <- as.numeric(input$deathDate_newPatient)
-    vipStatus <- input$vipStatus_newPatient
-    patientComments <- input$comments_newPatient
+    # inputDF <- data.frame(last_name, date_of_birth, clinical_id, deceased, sex, secondary_id,
+    #                       date_of_death, vip_flag, comments)
+    colnames(inputDF) <- inputColumns
     
-    newRow <- newRow %>% add_row(clinical_id = clinicalId, last_name = name, secondary_id = clinicalId2,
-                                 deceased = mortality, vip_flag = vipStatus, sex = gender,
-                                 date_of_birth = birthDate, date_of_death = deathDate, comments = patientComments)
-    add_NewPatient(newRow)
-    output$submitMessage_newPatient <- renderText({"Patient Added"})
+    cat("Valid Columns: ")
+    cat(intersect(dbColumns, inputColumns))
+    cat("\n")
+    
+    cat("In database, not input: ")
+    cat(setdiff(dbColumns, inputColumns))
+    cat("\n")
+    
+    cat("In input, not database: ")
+    cat(setdiff(inputColumns, dbColumns))
+    cat("\n")
+    
+    
+    #Check for valid inputs
+    if(setequal(union(inputColumns, dbColumns), dbColumns)){
+      if(!grepl("[[:punct:]]|[[:digit:]]", last_name)){
+        if(!is.na(as.numeric(clinical_id))){
+          if(date_of_death > date_of_birth){
+            
+            # newRow <- newRow %>% add_row(clinical_id = clinical_id, last_name = last_name, secondary_id = secondary_id,
+            #                            deceased = deceased, vip_flag = vip_flag, sex = sex,
+            #                            date_of_birth = date_of_birth, date_of_death = date_of_death, comments = comments)
+            
+            newRow <- bind_rows(newRow, inputDF)
+            
+            add_NewPatient(newRow)
+            output$submitMessage_newPatient <- renderText({"Patient Added"})
+            
+          }else{
+            output$submitMessage_newPatient <- renderText({"ERROR: Birth Date must be before Death Date"})
+          }
+        }else{
+          output$submitMessage_newPatient <- renderText({"ERROR: Clinical ID must be a number (don't include hyphens)"})
+        }
+      }else{
+        output$submitMessage_newPatient <- renderText({"ERROR: Patient Name contains invalid characters (numbers or special characters)"})
+      }
+    }else{
+      output$submitMessage_newPatient <- renderText({"ERROR: Contact Developer. Input ID not found in database"})
+    }
   })
   
+  ###################################################
+  #####         Home Page - Blood Draw Page     #####
+  ###################################################
   
+  output$StudyPicker_newDraw <- renderUI({
+    selectInput(inputId = "studyId_newDraw", label = "Study ID", choices = get_StudyList())
+  })
+  
+  observeEvent(input$submit_newDraw, {
+    
+    inputDF <- data.frame(
+      
+      draw_id <- input$drawId_newDraw,
+      study_name <- input$studyId_newDraw,
+      total_tubes_received <- input$totalTubes_newDraw,
+      total_volume_received <- as.character(input$totalVolume_newDraw),
+      draw_date <- as.numeric(input$date_newDraw),
+      draw_time <- as.numeric(input$time_newDraw),
+      process_date<- as.numeric(input$processDate_newDraw),
+      process_time <- as.numeric(input$processTime_newDraw),
+      
+      num_sodium_heparin_tubes <- input$sodiumTubes_newDraw,
+      num_of_edta_tubes <- input$EDTATubes_newDraw,
+      num_whole_blood_tubes <- input$wholeTubes_newDraw,
+      num_streck_tubes <- input$streckTubes_newDraw,
+      num_acd_tubes <- input$ACDTubes_newDraw,
+      num_other_tubes <- input$otherTubes_newDraw,
+      
+      processed_plasma_tubes <- input$plasmaTubes_newDraw,
+      processed_plasma_volume <- input$plasmaVolume_newDraw,
+      processed_serum_tubes <- input$serumTubes_newDraw,
+      processed_serum_volume <- input$serumVolume_newDraw,
+      processed_cell_tubes <- input$cellTubes_newDraw,
+      processed_cell_volume <- input$cellVolume_newDraw,
+      
+      comments <- input$comments_newDraw
+    )
+    
+    inputColumns <- c("draw_id", "study_name", "total_tubes_received", "total_volume_received", "draw_date",
+                      "draw_time", "process_date", "process_time", "num_sodium_heparin_tubes", "num_of_edta_tubes",
+                      "num_whole_blood_tubes", "num_streck_tubes", "num_acd_tubes", "num_other_tubes",
+                      "processed_plasma_tubes", "processed_plasma_volume", "processed_serum_tubes",
+                      "processed_serum_volume", "processed_cell_tubes", "processed_cell_volume", "comments")
+    
+    colnames(inputDF) <- inputColumns
+    
+    newRow <- get_FreezerColumnNames()
+    dbColumns <- colnames(newRow)
+    
+    cat("Valid Columns: ")
+    cat(intersect(dbColumns, inputColumns))
+    cat("\n")
+    
+    cat("In database, not input: ")
+    cat(setdiff(dbColumns, inputColumns))
+    cat("\n")
+    
+    cat("In input, not database: ")
+    cat(setdiff(inputColumns, dbColumns))
+    cat("\n")
+    
+    
+    if(setequal(union(inputColumns, dbColumns), dbColumns)){
+      
+      newRow <- bind_rows(newRow, inputDF)
+      add_NewDraw(newRow)
+      
+      output$submitMessage_newDraw <- renderText({"Blood Draw Added"})
+      
+    }else{
+      output$submitMessage_newDraw <- renderText({"ERROR. Contact Developer. Input ID not found in database"})
+    }
+  })
+  
+  ###################################################
+  #####          Home Page - Move Box Page      #####
+  ###################################################
+  
+  output$StudyPicker_moveBox <- renderUI({
+    selectInput(inputId = "study_moveBox", label = "Current Study:", choices = get_StudyList() )
+  })
+  output$currentRack_moveBox <- renderUI({
+    selectInput("currentRack_moveBox", label = "Rack:", choices = getRacks_ByStudy(input$study_moveBox))
+  })
+  output$box_moveBox <- renderUI({
+    selectInput("box_moveBox", label = "Box:", choices = getBoxes_ByRack(input$currentRack_moveBox))
+  })
+  output$type_moveBox <- renderUI({
+    selectInput("type_moveBox", label = "Box Type:", choices = getTypes_byLocation(input$currentRack_moveBox, input$box_moveBox))
+  })
+  output$newRack_moveBox <- renderUI({
+    selectInput("newRack_moveBox", label = "Rack:", choices = getRacks_ByStudy(input$study_moveBox))
+  })
+  output$currentFreezer_moveBox <- renderUI({
+    selectInput("currentFreezer_moveBox", label = "Freezer:", choices = freezerNameList)
+  })
+  output$newFreezer_moveBox <- renderUI({
+    selectInput("newFreezer_moveBox", label = "Freezer:", choices = freezerNameList)
+  })
   
   ###################################################
   #####             Freezer Page                #####

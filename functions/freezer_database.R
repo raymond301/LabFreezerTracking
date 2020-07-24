@@ -12,6 +12,14 @@ get_FreezerSlotCount <- function(){
   return( dbGetQuery(fCon, "SELECT COUNT(DISTINCT id) from freezer_slot WHERE status = \"Frozen\";")[[1]] )
 }
 
+get_FreezerColumnNames <- function(){
+  return(dbGetQuery(fCon,"SELECT * FROM blood_draw LIMIT 0"))
+}
+
+add_NewDraw <- function(df){
+  dbWriteTable(fCon, "blood_draw", df, append = TRUE)
+}
+
 
 ###### Unique lists for Dropdown menus ######
 get_StudyList <- function(){
