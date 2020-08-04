@@ -26,6 +26,7 @@ freezerpage <- dashboardPage(
         column(width = 6, uiOutput("SlotStart_newBox")),
         column(width = 6, uiOutput("NumTubes_newBox"))
       ),
+      uiOutput("StoreDate_newBox"),
       actionButton("addSamples_newBox", "Add Samples")
     )
   ),

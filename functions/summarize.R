@@ -9,3 +9,34 @@ getBoxSummary_lvl1 <- function(rid, tid, bid){
     return("Error")
   }
 }
+
+check_PatientInput <- function(df){
+  validInput <- TRUE
+  
+  if(grepl("\\#|\\/|\\%", df$last_name)){
+    showNotification("Name contains invalid characters", duration = 120, type = "error")
+    validInput <- FALSE
+  }
+  if(is.na(as.numeric(df$clinical_id))){
+    showNotification("Clinical ID is not a number", duration = 120, type = "error")
+    validInput <- FALSE
+  }
+  
+  return(validInput)
+}
+
+check_DrawInput <- function(df){
+  validInput <- TRUE
+  
+  if(df$draw_time > 2359 | df$draw_time %% 100 > 59){
+    showNotification("Time of Draw is out of range", duration = 120, type = "error")
+    validInput <- FALSE
+  }
+  if(df$process_time > 2359 | df$process_time %% 100 > 59){
+    showNotification("Time of Processing is out of range", duration = 120, type = "error")
+    validInput <- FALSE
+  }
+  
+  return(validInput)
+}
+

@@ -72,30 +72,17 @@ shinyServer(function(input, output, session) {
     
     #Check for valid inputs
     if(setequal(union(inputColumns, dbColumns), dbColumns)){
-      if(!grepl("[[:punct:]]|[[:digit:]]", last_name)){
-        if(!is.na(as.numeric(clinical_id))){
-          if(date_of_death > date_of_birth){
-            
-            # newRow <- newRow %>% add_row(clinical_id = clinical_id, last_name = last_name, secondary_id = secondary_id,
-            #                            deceased = deceased, vip_flag = vip_flag, sex = sex,
-            #                            date_of_birth = date_of_birth, date_of_death = date_of_death, comments = comments)
-            
-            newRow <- bind_rows(newRow, inputDF)
+      newRow <- bind_rows(newRow, inputDF)
+      
+      if(check_PatientInput(newRow)){
             
             add_NewPatient(newRow)
-            output$submitMessage_newPatient <- renderText({"Patient Added"})
-            
-          }else{
-            output$submitMessage_newPatient <- renderText({"ERROR: Birth Date must be before Death Date"})
-          }
-        }else{
-          output$submitMessage_newPatient <- renderText({"ERROR: Clinical ID must be a number (don't include hyphens)"})
-        }
-      }else{
-        output$submitMessage_newPatient <- renderText({"ERROR: Patient Name contains invalid characters (numbers or special characters)"})
+            showNotification("Patient Added", duration = 120, type = "message")
       }
+
     }else{
-      output$submitMessage_newPatient <- renderText({"ERROR: Contact Developer. Input ID not found in database"})
+      showNotification("Contact Developer. Input ID not found", duration = 100, type = "error")
+      #output$submitMessage_newPatient <- renderText({"ERROR: Contact Developer. Input ID not found in database"})
     }
   })
   
@@ -116,9 +103,10 @@ shinyServer(function(input, output, session) {
       total_tubes_received <- input$totalTubes_newDraw,
       total_volume_received <- as.character(input$totalVolume_newDraw),
       draw_date <- as.numeric(input$date_newDraw),
-      draw_time <- as.numeric(input$time_newDraw),
+      draw_time <- as.numeric(gsub("[[:punct:]]|[[:alpha:]]", "", input$time_newDraw)),
+      #draw_time <- as.numeric(input$time_newDraw),
       process_date<- as.numeric(input$processDate_newDraw),
-      process_time <- as.numeric(input$processTime_newDraw),
+      process_time <- as.numeric(gsub("[[:punct:]]|[[:alpha:]]", "", input$processTime_newDraw)),
       
       num_sodium_heparin_tubes <- input$sodiumTubes_newDraw,
       num_of_edta_tubes <- input$EDTATubes_newDraw,
@@ -164,12 +152,19 @@ shinyServer(function(input, output, session) {
     if(setequal(union(inputColumns, dbColumns), dbColumns)){
       
       newRow <- bind_rows(newRow, inputDF)
-      add_NewDraw(newRow)
       
-      output$submitMessage_newDraw <- renderText({"Blood Draw Added"})
+      if(check_DrawInput(newRow)){
+        
+        add_NewDraw(newRow)
+        showNotification("Blood Draw Added", duration = 100, type = "message")
+      }
+      
+      
+      #output$submitMessage_newDraw <- renderText({"Blood Draw Added"})
       
     }else{
-      output$submitMessage_newDraw <- renderText({"ERROR. Contact Developer. Input ID not found in database"})
+      showNotification("Contact Developer. Input ID not found", duration = 100, type = "error")
+      #output$submitMessage_newDraw <- renderText({"ERROR. Contact Developer. Input ID not found in database"})
     }
   })
   
@@ -322,7 +317,7 @@ shinyServer(function(input, output, session) {
          list(
            #tags$u(h6(paste0("Slot ", i + ((j-1)*numCols) ))),
 
-           actionButton(paste0("slot", i + ((j-1)*numCols)), label = i + ((j-1)*numCols), width = 100)
+           actionButton(paste0("slot", i + ((j-1)*numCols), "_newBox"), label = i + ((j-1)*numCols), width = 100)
          )
         )
       })
@@ -342,6 +337,14 @@ shinyServer(function(input, output, session) {
              textInput("numTubes_newBox", label = "# of Samples:")
     )
   })
+  output$StoreDate_newBox <- renderUI({
+    tags$div(title = "The date the sample is put into the freezer",
+             dateInput("storeDate_newBox", label = "Store Date: (MM/DD/YYYY)", format = "m/d/yyyy")
+    )
+  })
+  
+  slotContents_newBox <- vector(mode = "character", length = 100)
+  storeDates_newBox <- vector(mode = "numeric", length = 100)
   
   observeEvent(input$addSamples_newBox, {
     slotStart <- as.numeric(input$slotStart_newBox)
@@ -349,8 +352,67 @@ shinyServer(function(input, output, session) {
     
     #updateActionButton(session, paste0("slot", slotEnd), label = "a")
     for(i in slotStart:slotEnd){
-      currSlot <- paste0("slot", i)
+      
+      currSlot <- paste0("slot", i, "_newBox")
       updateActionButton(session, currSlot, label = input$auto1, icon("vial"))
+      slotContents_newBox[i] <<- input$auto1
+      storeDates_newBox[i] <<- as.numeric(input$storeDate_newBox)
+      #showNotification(slotContents_newBox[50], duration = 10)
+    }
+    #showNotification(slotContents_newBox[1], duration = 10)
+  })
+  
+  
+  observeEvent(input$Save_newBox, {
+    
+    
+    inputDF <- data.frame(
+      
+      rack <- input$rack_newBox,
+      box <- input$name_newBox,
+      box_type <- input$type_newBox,
+      slot <- 1,
+      blood_draw_id <- "",
+      status <- "Frozen",
+      store_date <- 0
+      
+    )
+
+    inputColumns <- c("rack", "box", "box_type", "slot", "blood_draw_id", "status", "store_date")
+    colnames(inputDF) <- inputColumns
+    
+    newRow <- get_BoxColumnNames()
+    dbColumns <- colnames(newRow)
+    
+    
+    cat("Valid Columns: ")
+    cat(intersect(dbColumns, inputColumns))
+    cat("\n")
+    
+    cat("In database, not input: ")
+    cat(setdiff(dbColumns, inputColumns))
+    cat("\n")
+    
+    cat("In input, not database: ")
+    cat(setdiff(inputColumns, dbColumns))
+    cat("\n")
+
+    if(setequal(union(inputColumns, dbColumns), dbColumns)){
+      
+      for(i in 1:100){
+        
+        inputDF$slot <- i
+        inputDF$blood_draw_id <- slotContents_newBox[i]
+        inputDF$store_date < storeDates_newBox[i]
+        
+        newRow <- bind_rows(newRow, inputDF)
+      }
+      
+      add_NewBox(newRow)
+      showNotification("Box Added", duration = 100, type = "message")
+      
+    }else{
+      showNotification("Contact Developer. Input ID not found", duration = 100, type = "error")
     }
   })
   
@@ -400,7 +462,7 @@ shinyServer(function(input, output, session) {
                         background = backgroundColor,
                         div(style = "display:inline-block; margin: -15px -5px 0px -5px; ",
                             tags$u(h6(paste0("Slot ", i + ((j-1)*numCols) ))),
-                            actionButton(paste0("slot", i + ((j-1)*numCols)), 
+                            actionButton(paste0("slot", i + ((j-1)*numCols), "_updateBox"), 
                                          label = getSamples_byLocation(input$rack_updateBox, input$box_updateBox,
                                                                        i + ((j-1)*numCols), input$type_updateBox), width = 90)
                         )
@@ -458,7 +520,7 @@ shinyServer(function(input, output, session) {
     )
   }
   
-  observeEvent(input$slot1, {
+  observeEvent(input$slot1_updateBox, {
     label = getSamples_byLocation(input$rack_updateBox, input$box_updateBox, 1, input$type_updateBox)
     slObj = getSlot_byLocation(input$rack_updateBox, input$box_updateBox, 1, input$type_updateBox)
     print(slObj)

@@ -20,6 +20,14 @@ add_NewDraw <- function(df){
   dbWriteTable(fCon, "blood_draw", df, append = TRUE)
 }
 
+get_BoxColumnNames <- function(){
+  return(dbGetQuery(fCon,"SELECT * FROM freezer_slot LIMIT 0"))
+}
+
+add_NewBox <- function(df){
+  dbWriteTable(fCon, "freezer_slot", df, append = TRUE)
+}
+
 
 ###### Unique lists for Dropdown menus ######
 get_StudyList <- function(){
