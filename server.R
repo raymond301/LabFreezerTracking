@@ -344,7 +344,7 @@ shinyServer(function(input, output, session) {
   })
   
   slotContents_newBox <- vector(mode = "character", length = 100)
-  storeDates_newBox <- vector(mode = "numeric", length = 100)
+  storeDates_newBox <- vector(mode = "character", length = 100)
   
   observeEvent(input$addSamples_newBox, {
     slotStart <- as.numeric(input$slotStart_newBox)
@@ -355,10 +355,14 @@ shinyServer(function(input, output, session) {
       
       currSlot <- paste0("slot", i, "_newBox")
       updateActionButton(session, currSlot, label = input$auto1, icon("vial"))
+      
       slotContents_newBox[i] <<- input$auto1
       storeDates_newBox[i] <<- as.numeric(input$storeDate_newBox)
-      #showNotification(slotContents_newBox[50], duration = 10)
+      
+      #showNotification(slotContents_newBox[i], duration = 10)
+      #showNotification(storeDates_newBox[i], duration = 10)
     }
+    #showNotification(storeDates_newBox[1], duration = 10)
     #showNotification(slotContents_newBox[1], duration = 10)
   })
   
@@ -399,18 +403,22 @@ shinyServer(function(input, output, session) {
 
     if(setequal(union(inputColumns, dbColumns), dbColumns)){
       
-      for(i in 1:100){
+      if(is_newBox(inputDF$rack, inputDF$box_type, inputDF$box)){
         
-        inputDF$slot <- i
-        inputDF$blood_draw_id <- slotContents_newBox[i]
-        inputDF$store_date < storeDates_newBox[i]
+        for(i in 1:100){
+          
+          inputDF$slot <- i
+          inputDF$blood_draw_id <- slotContents_newBox[i]
+          inputDF$store_date <- as.numeric(storeDates_newBox[i])
+          
+          newRow <- bind_rows(newRow, inputDF)
+        }
         
-        newRow <- bind_rows(newRow, inputDF)
+        add_NewBox(newRow)
+        showNotification("Box Added", duration = 100, type = "message")
+      }else{
+        showNotification("Box already exists", duration = 100, type = "error")
       }
-      
-      add_NewBox(newRow)
-      showNotification("Box Added", duration = 100, type = "message")
-      
     }else{
       showNotification("Contact Developer. Input ID not found", duration = 100, type = "error")
     }

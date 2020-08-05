@@ -28,6 +28,10 @@ check_PatientInput <- function(df){
 check_DrawInput <- function(df){
   validInput <- TRUE
   
+  if(grepl("\\#|\\/|\\%", df$draw_id)){
+    showNotification("Draw ID contains invalid characters", duration = 120, type = "error")
+    validInput <- FALSE
+  }
   if(df$draw_time > 2359 | df$draw_time %% 100 > 59){
     showNotification("Time of Draw is out of range", duration = 120, type = "error")
     validInput <- FALSE

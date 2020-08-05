@@ -12,10 +12,10 @@ get_FreezerSlotCount <- function(){
   return( dbGetQuery(fCon, "SELECT COUNT(DISTINCT id) from freezer_slot WHERE status = \"Frozen\";")[[1]] )
 }
 
+###### Functions used in input saving ######
 get_FreezerColumnNames <- function(){
   return(dbGetQuery(fCon,"SELECT * FROM blood_draw LIMIT 0"))
 }
-
 add_NewDraw <- function(df){
   dbWriteTable(fCon, "blood_draw", df, append = TRUE)
 }
@@ -23,9 +23,12 @@ add_NewDraw <- function(df){
 get_BoxColumnNames <- function(){
   return(dbGetQuery(fCon,"SELECT * FROM freezer_slot LIMIT 0"))
 }
-
 add_NewBox <- function(df){
   dbWriteTable(fCon, "freezer_slot", df, append = TRUE)
+}
+
+is_newBox <- function(rid, tid, bid){
+  return( nrow(dbGetQuery(fCon, paste0("SELECT * FROM freezer_slot WHERE rack = \"",rid,"\" AND box = \"",bid,"\" AND box_type = \"",tid,"\";"))) == 0)
 }
 
 
@@ -58,7 +61,7 @@ getStatus_byLocation <- function(rid, bid, sid, tid){
   return( dbGetQuery(fCon, paste0("SELECT DISTINCT status FROM freezer_slot WHERE rack = \"",rid,"\" AND box = \"",bid,"\" AND slot = \"",sid,"\" AND box_type = \"",tid,"\";")) )
 }
 getTypes_byLocation <- function(rid, bid){
-  return( dbGetQuery(fCon, paste0("SELECT DISTINCT box_type FROM freezer_slot WHERE rack = \"",rid,"\" AND box = \"",bid,"\";")) )
+  return( dbGetQuery(fCon, paste0("SELECT box_type FROM freezer_slot WHERE rack = \"",rid,"\" AND box = \"",bid,"\";")) )
 }
 getSlot_byLocation <- function(rid, bid, sid, tid){
   return( dbGetQuery(fCon, paste0("SELECT * FROM freezer_slot WHERE rack = \"",rid,"\" AND box = \"",bid,"\" AND slot = \"",sid,"\" AND box_type = \"",tid,"\";")) )
