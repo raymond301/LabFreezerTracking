@@ -21,6 +21,10 @@ check_PatientInput <- function(df){
     showNotification("Clinical ID is not a number", duration = 120, type = "error")
     validInput <- FALSE
   }
+  if(!is_NewPatient(df$clinical_id)){
+    showNotification("Clinical ID already in database", duration = 120, type = "error")
+    validInput <- FALSE
+  }
   
   return(validInput)
 }

@@ -73,7 +73,9 @@ freezerpage <- dashboardPage(
                            # )
                            
                          ),
+                         
                           actionButton("Save_newBox", label = "Save Box"),
+                          actionButton("Clear_newBox", label = "Clear Box"),
                           h5("Current Dimensions:"),
                           uiOutput("Grid_newBox")
                          

@@ -33,11 +33,6 @@ shinyServer(function(input, output, session) {
 
     newRow <- get_PatientColumnNames()
 
-    # if("clinical_id" %in% colnames(newRow)){
-    #   cat("found: clinical_id")
-    # }else{
-    #   cat("not found: clinical_id \n")
-    # }
     inputDF <- data.frame(
       last_name <- input$patientName_newPatient,
       date_of_birth <- as.numeric(input$birthDate_newPatient),
@@ -49,6 +44,7 @@ shinyServer(function(input, output, session) {
       vip_flag <- input$vipStatus_newPatient,
       comments <- input$comments_newPatient
     )
+    
     dbColumns <- colnames(newRow)
     inputColumns <- c("last_name", "date_of_birth", "clinical_id", "deceased", "sex", "secondary_id", 
                       "date_of_death", "vip_flag", "comments")
@@ -84,6 +80,18 @@ shinyServer(function(input, output, session) {
       showNotification("Contact Developer. Input ID not found", duration = 100, type = "error")
       #output$submitMessage_newPatient <- renderText({"ERROR: Contact Developer. Input ID not found in database"})
     }
+  })
+  
+  observeEvent(input$clear_newPatient, {
+    updateTextInput(session, "patientName_newPatient", value = "")
+    updateDateInput(session, "birthDate_newPatient", value = NULL)
+    updateTextInput(session, "clinicalId_newPatient", value = "")
+    updateRadioButtons(session, "mortality_newPatient", selected = "U")
+    updateRadioButtons(session, "gender_newPatient", selected = "U")
+    updateTextInput(session, "clinicalId2_newPatient", value = "")
+    updateDateInput(session, "deathDate_newPatient", value = NULL)
+    updateRadioButtons(session, "vipStatus_newPatient", selected = "N")
+    updateTextAreaInput(session, "comments_newPatient", value = "")
   })
   
   ###################################################
@@ -257,6 +265,7 @@ shinyServer(function(input, output, session) {
              selectInput("rack_newBox", label = "Rack:", choices = getRacks_ByStudy(input$select_study))
     )
   })
+  
   observeEvent(input$newRack_newBox, {
     showModal(modalDialog(
       title = "Create a new Freezer Rack",
@@ -421,6 +430,17 @@ shinyServer(function(input, output, session) {
       }
     }else{
       showNotification("Contact Developer. Input ID not found", duration = 100, type = "error")
+    }
+  })
+  
+  observeEvent(input$Clear_newBox, {
+
+    slotContents_newBox <<- vector(mode = "character", length = 100)
+    storeDates_newBox <<- vector(mode = "character", length = 100)
+    
+    for(i in 1:100){
+      currSlot <- paste0("slot", i, "_newBox")
+      updateActionButton(session, currSlot, label = i, icon(""))
     }
   })
   

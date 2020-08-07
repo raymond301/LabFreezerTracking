@@ -129,7 +129,7 @@ homepage <- dashboardPage(
             box(
               width = 4,
               background = "blue",
-              textInput(inputId = "clinicalId_newPatient", label = "Clinical ID Number")
+              textInput(inputId = "clinicalId_newPatient", label = "Clinical ID Number", placeholder = "Don't include hyphens...")
             )
           ),
           fluidRow(
@@ -142,7 +142,7 @@ homepage <- dashboardPage(
             box(
               width = 4,
               background = "blue",
-              radioButtons(inputId = "gender_newPatient", label = "Gender:", 
+              radioButtons(inputId = "gender_newPatient", label = "Sex:", 
                            choices = c("Male" = "M", "Female" = "F", "Unknown/Other" = "U"), selected = "U")
             ),
             box(
@@ -173,7 +173,8 @@ homepage <- dashboardPage(
             )
           ),
           actionButton(inputId = "submit_newPatient", label = "Submit"),
-          uiOutput("submitMessage_newPatient")
+          actionButton(inputId = "clear_newPatient", label = "Clear")
+          #uiOutput("submitMessage_newPatient")
         )
         )
       ),
