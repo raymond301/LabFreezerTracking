@@ -27,10 +27,6 @@ Using SQLite3 for persistent data storage & management. [Tutorial](https://www.g
 
 2. for blood draw event, add cell concentration. Same for all tubes - just one.
 
-3. for new box page,  Starting Slot & number of tubes/vials.
-
-4. create box, needs stashing capabilites.
-
 5. add date field, default to today. add freezer to update page.
 
 

@@ -4,6 +4,10 @@ library(shinydashboard)
 library(tidyverse)
 library(plotly)
 library(RSQLite)
+#library(redcap) ### Assumes .redcaprc in ~/
+library(RCurl)
+options(RCurlOptions = list(ssl.verifypeer = FALSE))
+library(jsonlite)
 
 ### This lib was previously in CRAN, but for now, must be installed by dev.
 if("dqshiny" %in% rownames(installed.packages()) == FALSE) {remotes::install_github("daqana/dqshiny")}
@@ -24,10 +28,14 @@ freezerNameList <- c("R001","R002","R003","R004","R005","R006","R007","R008")
 ###       Database Functions         ###
 ########################################
 source("functions/freezer_database.R")
-if(exists("redcapAPI")){
-  source("functions/db_sqlite.R")
-} else {
+
+if(exists("redcapAPI") && redcapAPI != ""){
+  print("Connecting to RedCap...")
   source("functions/db_redcap.R")
+} else {
+  print("Connecting to SQLite3...")
+  source("functions/db_sqlite.R")
 }
+
 source("functions/summarize.R")
 

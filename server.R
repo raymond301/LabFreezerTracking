@@ -10,6 +10,8 @@ shinyServer(function(input, output, session) {
   output$blooddraw_count <- renderText({ format(get_BloodDrawCount(),big.mark=",",scientific=FALSE) })
   output$freezerslot_count <- renderText({ format(get_FreezerSlotCount(),big.mark=",",scientific=FALSE) })
   
+  print(getDbVersion())
+  
   #Updates the screen based on the buttons on the homepage
   observeEvent(input$changeTask1, {
     shinydashboard::updateTabItems(session, "explorertabs", "task_1")
@@ -391,6 +393,7 @@ shinyServer(function(input, output, session) {
       
     )
 
+    ### please add "freezer_name"
     inputColumns <- c("rack", "box", "box_type", "slot", "blood_draw_id", "status", "store_date")
     colnames(inputDF) <- inputColumns
     

@@ -1,6 +1,10 @@
 patientDBC <- "data/patientdata.db"
 pCon <- dbConnect(drv=RSQLite::SQLite(), dbname=patientDBC)
 
+getDbVersion <- function(){
+  return( "SQLite3 Internal" )
+}
+
 get_PatientCount <- function(){
   return( dbGetQuery(pCon, "SELECT COUNT(DISTINCT clinical_id) from patient;")[[1]] )
 }
