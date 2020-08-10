@@ -12,6 +12,11 @@ get_PatientColumnNames <- function(){
 add_NewPatient <- function(df){
   dbWriteTable(pCon, "patient", df, append = TRUE)
 }
+
+is_NewPatient <- function(cid){
+  return( nrow(dbGetQuery(pCon, paste0("SELECT * FROM patient WHERE clinical_id = \"",cid,"\";"))) == 0)
+}
+
 ###### Whole Data tables ######
 
 getPatients_All <- function(){

@@ -25,6 +25,7 @@ freezerpage <- dashboardPage(
         column(width = 6, uiOutput("SlotStart_newBox")),
         column(width = 6, uiOutput("NumTubes_newBox"))
       ),
+      uiOutput("StoreDate_newBox"),
       actionButton("addSamples_newBox", "Add Samples")
     )
   ),
@@ -71,7 +72,9 @@ freezerpage <- dashboardPage(
                            # )
                            
                          ),
+                         
                           actionButton("Save_newBox", label = "Save Box"),
+                          actionButton("Clear_newBox", label = "Clear Box"),
                           h5("Current Dimensions:"),
                           uiOutput("Grid_newBox")
                          
