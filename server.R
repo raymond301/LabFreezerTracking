@@ -9,8 +9,7 @@ shinyServer(function(input, output, session) {
   output$patient_count <- renderText({ format(get_PatientCount(),big.mark=",",scientific=FALSE) })
   output$blooddraw_count <- renderText({ format(get_BloodDrawCount(),big.mark=",",scientific=FALSE) })
   output$freezerslot_count <- renderText({ format(get_FreezerSlotCount(),big.mark=",",scientific=FALSE) })
-  
-  print(getDbVersion())
+  print(paste("Database Version:",getDbVersion()))
   
   #Updates the screen based on the buttons on the homepage
   observeEvent(input$changeTask1, {
@@ -26,155 +25,94 @@ shinyServer(function(input, output, session) {
     shinydashboard::updateTabItems(session, "explorertabs", "datainfo")
   })
   
-  ###################################################
-  #####          Home Page - Patient Page       #####
-  ###################################################
   
-  #adds a new patient to the database
+  
+  ###################################################
+  #####          Home Page - Patient Form       #####
+  ###################################################
+  clearPatientForm <- function(){
+    updateTextInput(session, "patient_clinicalid", value = "")
+    updateTextInput(session, "patient_clinicalId2", value = "")
+    updateTextInput(session, "patient_firstname", value = "")
+    updateTextInput(session, "patient_lastname", value = "")
+    updateDateInput(session, "patient_birthdate", value = NULL)
+    updateRadioButtons(session, "patient_mortality", selected = "0")
+    updateRadioButtons(session, "patient_gender", selected = "0")
+    updateRadioButtons(session, "vipStatus_newPatient", selected = "N")
+    updateTextAreaInput(session, "comments_newPatient", value = "")
+  }
+  
   observeEvent(input$submit_newPatient, {
-
-    newRow <- get_PatientColumnNames()
-
+    #adds a new patient to the database from form
     inputDF <- data.frame(
-      last_name <- input$patientName_newPatient,
-      date_of_birth <- as.numeric(input$birthDate_newPatient),
-      clinical_id <- input$clinicalId_newPatient,
-      deceased <- input$mortality_newPatient,
-      sex <- input$gender_newPatient,
-      secondary_id <- as.numeric(input$clinicalId2_newPatient),
-      date_of_death <- as.numeric(input$deathDate_newPatient),
-      vip_flag <- input$vipStatus_newPatient,
-      comments <- input$comments_newPatient
+      record_id	= input$patient_clinicalid,
+      secondary_id = input$patient_clinicalId2,
+      deceased = input$patient_mortality,
+      vip_flag = input$patient_vipstatus,
+      last_name =	input$patient_lastname,
+      first_name = input$patient_firstname,
+      sex	= input$patient_gender,
+      date_of_birth = input$patient_birthdate
     )
-    
-    dbColumns <- colnames(newRow)
-    inputColumns <- c("last_name", "date_of_birth", "clinical_id", "deceased", "sex", "secondary_id", 
-                      "date_of_death", "vip_flag", "comments")
-    
-    # inputDF <- data.frame(last_name, date_of_birth, clinical_id, deceased, sex, secondary_id,
-    #                       date_of_death, vip_flag, comments)
-    colnames(inputDF) <- inputColumns
-    
-    cat("Valid Columns: ")
-    cat(intersect(dbColumns, inputColumns))
-    cat("\n")
-    
-    cat("In database, not input: ")
-    cat(setdiff(dbColumns, inputColumns))
-    cat("\n")
-    
-    cat("In input, not database: ")
-    cat(setdiff(inputColumns, dbColumns))
-    cat("\n")
-    
-    
-    #Check for valid inputs
-    if(setequal(union(inputColumns, dbColumns), dbColumns)){
-      newRow <- bind_rows(newRow, inputDF)
-      
-      if(check_PatientInput(newRow)){
-            
-            add_NewPatient(newRow)
-            showNotification("Patient Added", duration = 120, type = "message")
-      }
-
-    }else{
-      showNotification("Contact Developer. Input ID not found", duration = 100, type = "error")
-      #output$submitMessage_newPatient <- renderText({"ERROR: Contact Developer. Input ID not found in database"})
+    #Check to ensure entry goes into the database.
+    if( create_Patient(inputDF) ){
+      showNotification("Patient Added", duration = 120, type = "message")
+      clearPatientForm()
+    } else {
+      showNotification("Error: Entry not saved to database. Contact Developer.", duration = 100, type = "error")
     }
   })
   
   observeEvent(input$clear_newPatient, {
-    updateTextInput(session, "patientName_newPatient", value = "")
-    updateDateInput(session, "birthDate_newPatient", value = NULL)
-    updateTextInput(session, "clinicalId_newPatient", value = "")
-    updateRadioButtons(session, "mortality_newPatient", selected = "U")
-    updateRadioButtons(session, "gender_newPatient", selected = "U")
-    updateTextInput(session, "clinicalId2_newPatient", value = "")
-    updateDateInput(session, "deathDate_newPatient", value = NULL)
-    updateRadioButtons(session, "vipStatus_newPatient", selected = "N")
-    updateTextAreaInput(session, "comments_newPatient", value = "")
+    clearPatientForm()
   })
   
-  ###################################################
-  #####         Home Page - Blood Draw Page     #####
-  ###################################################
   
+  
+  ###################################################
+  #####         Home Page - Blood Draw Form     #####
+  ###################################################
   output$StudyPicker_newDraw <- renderUI({
     selectInput(inputId = "studyId_newDraw", label = "Study ID", choices = get_StudyList())
   })
+  output$autoSamples <- renderUI({
+    pats <- getPatients_All()
+    autocomplete_input("autoRecordId", "Patient ID:", c('', pats$record_id), max_options = 15)
+  })
   
   observeEvent(input$submit_newDraw, {
-    
-    inputDF <- data.frame(
+    inputDrawDF <- data.frame(
+      draw_id = input$drawId_newDraw,
+      record_id = input$autoRecordId,
+      study_name = input$studyId_newDraw,
+      total_tubes_received = input$totalTubes_newDraw,
+      total_volume_received = as.character(input$totalVolume_newDraw),
+      draw_date = as.numeric(input$date_newDraw),
+      draw_time = as.numeric(gsub("[[:punct:]]|[[:alpha:]]", "", input$time_newDraw)),
+      #draw_time = as.numeric(input$time_newDraw),
+      process_date= as.numeric(input$processDate_newDraw),
+      process_time = as.numeric(gsub("[[:punct:]]|[[:alpha:]]", "", input$processTime_newDraw)),
+      num_sodium_heparin_tubes = input$sodiumTubes_newDraw,
+      num_of_edta_tubes = input$EDTATubes_newDraw,
+      num_whole_blood_tubes = input$wholeTubes_newDraw,
+      num_streck_tubes = input$streckTubes_newDraw,
+      num_acd_tubes = input$ACDTubes_newDraw,
+      num_other_tubes = input$otherTubes_newDraw,
+      processed_plasma_tubes = input$plasmaTubes_newDraw,
+      processed_plasma_volume = input$plasmaVolume_newDraw,
+      processed_serum_tubes = input$serumTubes_newDraw,
+      processed_serum_volume = input$serumVolume_newDraw,
+      processed_cell_tubes = input$cellTubes_newDraw,
+      processed_cell_volume = input$cellVolume_newDraw,
+      processed_cell_conc = input$cellConcentration_newDraw,
+      comments = input$comments_newDraw,
+      retired = "F"
       
-      draw_id <- input$drawId_newDraw,
-      study_name <- input$studyId_newDraw,
-      total_tubes_received <- input$totalTubes_newDraw,
-      total_volume_received <- as.character(input$totalVolume_newDraw),
-      draw_date <- as.numeric(input$date_newDraw),
-      draw_time <- as.numeric(gsub("[[:punct:]]|[[:alpha:]]", "", input$time_newDraw)),
-      #draw_time <- as.numeric(input$time_newDraw),
-      process_date<- as.numeric(input$processDate_newDraw),
-      process_time <- as.numeric(gsub("[[:punct:]]|[[:alpha:]]", "", input$processTime_newDraw)),
-      
-      num_sodium_heparin_tubes <- input$sodiumTubes_newDraw,
-      num_of_edta_tubes <- input$EDTATubes_newDraw,
-      num_whole_blood_tubes <- input$wholeTubes_newDraw,
-      num_streck_tubes <- input$streckTubes_newDraw,
-      num_acd_tubes <- input$ACDTubes_newDraw,
-      num_other_tubes <- input$otherTubes_newDraw,
-      
-      processed_plasma_tubes <- input$plasmaTubes_newDraw,
-      processed_plasma_volume <- input$plasmaVolume_newDraw,
-      processed_serum_tubes <- input$serumTubes_newDraw,
-      processed_serum_volume <- input$serumVolume_newDraw,
-      processed_cell_tubes <- input$cellTubes_newDraw,
-      processed_cell_volume <- input$cellVolume_newDraw,
-      
-      comments <- input$comments_newDraw
     )
-    
-    inputColumns <- c("draw_id", "study_name", "total_tubes_received", "total_volume_received", "draw_date",
-                      "draw_time", "process_date", "process_time", "num_sodium_heparin_tubes", "num_of_edta_tubes",
-                      "num_whole_blood_tubes", "num_streck_tubes", "num_acd_tubes", "num_other_tubes",
-                      "processed_plasma_tubes", "processed_plasma_volume", "processed_serum_tubes",
-                      "processed_serum_volume", "processed_cell_tubes", "processed_cell_volume", "comments")
-    
-    colnames(inputDF) <- inputColumns
-    
-    newRow <- get_FreezerColumnNames()
-    dbColumns <- colnames(newRow)
-    
-    cat("Valid Columns: ")
-    cat(intersect(dbColumns, inputColumns))
-    cat("\n")
-    
-    cat("In database, not input: ")
-    cat(setdiff(dbColumns, inputColumns))
-    cat("\n")
-    
-    cat("In input, not database: ")
-    cat(setdiff(inputColumns, dbColumns))
-    cat("\n")
-    
-    
-    if(setequal(union(inputColumns, dbColumns), dbColumns)){
-      
-      newRow <- bind_rows(newRow, inputDF)
-      
-      if(check_DrawInput(newRow)){
-        
-        add_NewDraw(newRow)
-        showNotification("Blood Draw Added", duration = 100, type = "message")
-      }
-      
-      
-      #output$submitMessage_newDraw <- renderText({"Blood Draw Added"})
-      
-    }else{
-      showNotification("Contact Developer. Input ID not found", duration = 100, type = "error")
-      #output$submitMessage_newDraw <- renderText({"ERROR. Contact Developer. Input ID not found in database"})
+    if( add_NewDraw(inputDrawDF) ){
+      showNotification("Blood Draw Added", duration = 100, type = "success")
+    } else {
+      showNotification("Error: Blood Draw did not sucessfully record in db.", duration = 100, type = "error")
     }
   })
   
@@ -189,20 +127,25 @@ shinyServer(function(input, output, session) {
     selectInput("currentRack_moveBox", label = "Rack:", choices = getRacks_ByStudy(input$study_moveBox))
   })
   output$box_moveBox <- renderUI({
-    selectInput("box_moveBox", label = "Box:", choices = getBoxes_ByRack(input$currentRack_moveBox))
+    selectInput("box_moveBox", label = "Box:", choices = getBoxes_ByRack(input$currentRack_moveBox)$box)
   })
   output$type_moveBox <- renderUI({
-    selectInput("type_moveBox", label = "Box Type:", choices = getTypes_byLocation(input$currentRack_moveBox, input$box_moveBox))
+    selectInput("type_moveBox", label = "Box Type:", choices = unique(getBoxes_ByRack(input$currentRack_moveBox)$box_type) )
   })
   output$newRack_moveBox <- renderUI({
     selectInput("newRack_moveBox", label = "Rack:", choices = getRacks_ByStudy(input$study_moveBox))
   })
   output$currentFreezer_moveBox <- renderUI({
-    selectInput("currentFreezer_moveBox", label = "Freezer:", choices = freezerNameList)
+    selectInput("currentFreezer_moveBox", label = "Freezer:", choices = c('AUTO',freezerNameList))
   })
   output$newFreezer_moveBox <- renderUI({
     selectInput("newFreezer_moveBox", label = "Freezer:", choices = freezerNameList)
   })
+  
+  
+  
+  
+  
   
   ###################################################
   #####             Freezer Page                #####
@@ -227,16 +170,17 @@ shinyServer(function(input, output, session) {
   output$freezer_rack_tree <- renderUI({
     myRacks <- getRacks_ByStudy(input$select_study)
     lapply(1:length(myRacks), function(i) {
-      myBoxes <- getBoxes_ByRack(myRacks[i])
+      currentRackID <- myRacks[i]
+      myBoxes <- getBoxes_ByRack(currentRackID)
       justPlasma <- myBoxes %>% filter(box_type == "Plasma")
       justCells <- myBoxes %>% filter(box_type == "Cells")
-      box(width = 12,title = paste("Rack:",myRacks[i]),solidHeader = TRUE, collapsible = TRUE,collapsed = TRUE,
+      box(width = 12,title = paste("Rack:",currentRackID),solidHeader = TRUE, collapsible = TRUE,collapsed = TRUE,
           fluidRow(
             box(width = 6,title = "Plasma", solidHeader = TRUE, collapsible = TRUE,collapsed = TRUE,
                 fluidRow(
                   lapply(1:nrow(justPlasma), function(i) {
                     box(width = 5,title = paste("Box:",justPlasma$box[i]), solidHeader = TRUE, collapsible = TRUE,collapsed = TRUE,
-                        p( getBoxSummary_lvl1(myRacks[i],"Plasma",justPlasma$box[i]) ) )
+                        p( getBoxSummary_lvl1(currentRackID,"Plasma",justPlasma$box[i]) ) )
                   }
                   )
                 )),
@@ -244,7 +188,7 @@ shinyServer(function(input, output, session) {
                 fluidRow(
                   lapply(1:nrow(justCells), function(i) {
                     box(width = 5,title = paste("Box:",justCells$box[i]), solidHeader = TRUE, collapsible = TRUE,collapsed = TRUE,
-                        p( getBoxSummary_lvl1(myRacks[i],"Cells",justCells$box[i]) ) )
+                        p( getBoxSummary_lvl1(currentRackID,"Cells",justCells$box[i]) ) )
                   }
                   )
                 ))
@@ -557,8 +501,5 @@ shinyServer(function(input, output, session) {
     print(slObj)
     showModal(newDrawModal(1, label, slObj))
   })
-  
-  
-  
   
 })

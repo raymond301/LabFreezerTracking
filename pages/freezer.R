@@ -2,21 +2,12 @@ freezerpage <- dashboardPage(
   dashboardHeader(disable = TRUE),
   dashboardSidebar(
     uiOutput("StudyPicker"),
-
-    # conditionalPanel(
-    #   condition = "input.freezertabs == 'freezer_tab3'",
-    # 
-    #   uiOutput("RackPicker_updateBox"),
-    #   uiOutput("BoxPicker_updateBox"),
-    #   uiOutput("TypePicker_updateBox")
-    # ),
     conditionalPanel(
       condition = "input.freezertabs == 'freezer_tab2'",
       actionButton("newRack_newBox", label = "Create New Rack")
     ),
-
+    
     uiOutput("autoDraws"),
-    #uiOutput("autoListNav")
     
     conditionalPanel(
       condition = "input.freezertabs == 'freezer_tab2'",
@@ -32,8 +23,8 @@ freezerpage <- dashboardPage(
   dashboardBody(
     tabsetPanel(id="freezertabs",
                 tabPanel("Find",  value='freezer_tab1',
-                         h2(paste("Locate Existing Freezer Data")),
-                         h3(textOutput("current_study")),
+                         h2(paste("Existing Freezer Data")),
+                         #h3(textOutput("current_study")),
                          hr(),
                          # Tree of boxes
                          uiOutput('freezer_rack_tree')

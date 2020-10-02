@@ -106,6 +106,11 @@ homepage <- dashboardPage(
         )
 
       ),
+      
+      
+      
+      
+      #######################################
       #Sample pages for the other tabs
       tabItem(
         tabName = "task_1",
@@ -117,52 +122,57 @@ homepage <- dashboardPage(
           background = "blue",
           fluidRow(
             box(
-              width = 4,
+              width = 3,
               background = "blue",
-              textInput(inputId = "patientName_newPatient", label = "Patient Name", placeholder = "Enter Patient Last Name..."),
+              textInput(inputId = "patient_firstname", label = "Patient Name", placeholder = "First Name"),
             ),
             box(
-              width = 4,
+              width = 3,
               background = "blue",
-              dateInput(inputId = "birthDate_newPatient", label = "Birth Date (MM/DD/YYYY)", format = "m/d/yyyy")
+              textInput(inputId = "patient_lastname", label = "", placeholder = "Last Name"),
             ),
             box(
-              width = 4,
+              width = 2,
               background = "blue",
-              textInput(inputId = "clinicalId_newPatient", label = "Clinical ID Number", placeholder = "Don't include hyphens...")
+              dateInput(inputId = "patient_birthdate", label = "Birth Date", format = "m-d-yyyy")
+            ),
+            box(
+              width = 2,
+              background = "blue",
+              textInput(inputId = "patient_clinicalid", label = "Clinical ID", placeholder = "No hyphens...")
             )
           ),
           fluidRow(
             box(
               width = 4,
               background = "blue",
-              radioButtons(inputId = "mortality_newPatient", label = "Mortality Status:", 
-                           choices = c("Alive" = "N", "Dead" = "Y", "Unknown" = "U"), selected = "U")
+              radioButtons(inputId = "patient_mortality", label = "Mortality Status:", 
+                           choices = c("Alive" = 0, "Dead" = 1), selected = 0)
             ),
             box(
               width = 4,
               background = "blue",
-              radioButtons(inputId = "gender_newPatient", label = "Sex:", 
-                           choices = c("Male" = "M", "Female" = "F", "Unknown/Other" = "U"), selected = "U")
+              radioButtons(inputId = "patient_gender", label = "Sex:", 
+                           choices = c("Male" = 1, "Female" = 2, "Unknown/Other" = 3), selected = 3)
             ),
             box(
               width = 4,
               background = "blue",
-              textInput(inputId = "clinicalId2_newPatient", label = "Second Clinical ID/External ID (optional)", 
+              textInput(inputId = "patient_clinicalId2", label = "Second Clinical ID/External ID (optional)", 
                         placeholder = "Enter Second Clinical ID Number...")
             )  
           ),
           fluidRow(
+            # box(
+            #   width = 4,
+            #   background = "blue",
+            #   dateInput(inputId = "patient_deathdate", label = "Death Date (MM/DD/YYYY)", format = "m/d/yyyy")
+            # ),
             box(
               width = 4,
               background = "blue",
-              dateInput(inputId = "deathDate_newPatient", label = "Death Date (MM/DD/YYYY)", format = "m/d/yyyy")
-            ),
-            box(
-              width = 4,
-              background = "blue",
-              radioButtons(inputId = "vipStatus_newPatient", label = "Flag as VIP:", 
-                           choices = c("Yes" = "Y", "No" = "N"), selected = "N")
+              radioButtons(inputId = "patient_vipstatus", label = "Flag as VIP:", 
+                           choices = c("Yes" = 1, "No" = 0), selected = 0)
             ),
             box(
               width = 4,
@@ -178,6 +188,11 @@ homepage <- dashboardPage(
         )
         )
       ),
+      
+      
+      
+      
+      
       tabItem(
         tabName = "task_2",
         fluidPage(
@@ -187,7 +202,7 @@ homepage <- dashboardPage(
           background = "blue",
           fluidRow(
             box(
-              width = 3,
+              width = 2,
               background = "blue",
               textInput(inputId = "drawId_newDraw", label = "Draw ID")
             ),
@@ -199,12 +214,17 @@ homepage <- dashboardPage(
             box(
               width = 3,
               background = "blue",
-              numericInput(inputId = "totalTubes_newDraw", label = "Total number of tubes", value = 0, min = 0)
+              uiOutput("autoSamples")
             ),
             box(
-              width = 3,
+              width = 2,
               background = "blue",
-              numericInput(inputId = "totalVolume_newDraw", label = "Total volume (mL)", value = 0, min = 0)
+              numericInput(inputId = "totalTubes_newDraw", label = "Total Tubes", value = 0, min = 0)
+            ),
+            box(
+              width = 2,
+              background = "blue",
+              numericInput(inputId = "totalVolume_newDraw", label = "Total mL", value = 0, min = 0)
             )
           ),
           fluidRow(

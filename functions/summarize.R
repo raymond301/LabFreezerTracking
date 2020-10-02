@@ -5,7 +5,10 @@ getBoxSummary_lvl1 <- function(rid, tid, bid){
   tbl <- as.data.frame(table(df$status))
   if(nrow(tbl) == 2){
     return(paste(tbl$Var1[1],":",tbl$Freq[1],"  ",tbl$Var1[2],":",tbl$Freq[2]))
+  } else if(nrow(tbl) == 1){
+    return(paste(tbl$Var1[1],":",tbl$Freq[1]))
   } else {
+    print(paste("Error in Box Summary! rack=",rid,"type=",tid,"box_id=",bid))
     return("Error")
   }
 }
