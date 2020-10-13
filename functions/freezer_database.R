@@ -68,10 +68,22 @@ getSlot_byLocation <- function(rid, bid, sid, tid){
   return( dbGetQuery(fCon, paste0("SELECT * FROM freezer_slot WHERE rack = \"",rid,"\" AND box = \"",bid,"\" AND slot = \"",sid,"\" AND box_type = \"",tid,"\";")) )
 }
 
-
 getEntireRack_byIDs <- function(fid, rid){
   return( dbGetQuery(fCon, paste0("SELECT * FROM freezer_slot WHERE freezer_name = \"",fid,"\" AND rack = \"",rid,"\"")) )
 }
+
+
+
+######### Lookup Table for Dynamic Diagnosis Labels ############
+
+add_NewDiagnosis <- function(df){
+  dbWriteTable(fCon, "diagnosis", df, append = TRUE)
+}
+
+get_allDiagnosis <- function(){
+  return(dbGetQuery(fCon,"SELECT term,code_type,code FROM diagnosis"))
+}
+
 
 # get a list of all tables inside this dataabase
 # dbListTables(con)

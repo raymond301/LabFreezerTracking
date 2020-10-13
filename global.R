@@ -13,7 +13,10 @@ library(jsonlite)
 if("dqshiny" %in% rownames(installed.packages()) == FALSE) {remotes::install_github("daqana/dqshiny")}
 library(dqshiny)
 
-page_files <- c("pages/about.R","pages/home.R", "pages/freezer.R")
+module_files <- c("pages/new_patient_module.R", "pages/new_blooddraw_module.R", "pages/move_box_module.R", "pages/home_helper_module.R")
+purrr::walk(module_files, source, local = environment())
+
+page_files <- c("pages/about.R","pages/home.R", "pages/freezer.R", "pages/query.R")
 purrr::walk(page_files, source, local = environment())
 
 

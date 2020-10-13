@@ -10,6 +10,7 @@ shinyServer(function(input, output, session) {
   output$blooddraw_count <- renderText({ format(get_BloodDrawCount(),big.mark=",",scientific=FALSE) })
   output$freezerslot_count <- renderText({ format(get_FreezerSlotCount(),big.mark=",",scientific=FALSE) })
   print(paste("Database Version:",getDbVersion()))
+  print(paste("Logged In:",session$user ))
   
   #Updates the screen based on the buttons on the homepage
   observeEvent(input$changeTask1, {
@@ -20,6 +21,9 @@ shinyServer(function(input, output, session) {
   })
   observeEvent(input$changeTask3, {
     shinydashboard::updateTabItems(session, "explorertabs", "task_3")
+  })
+  observeEvent(input$changeTask4, {
+    shinydashboard::updateTabItems(session, "explorertabs", "task_4")
   })
   observeEvent(input$changeDataInfo, {
     shinydashboard::updateTabItems(session, "explorertabs", "datainfo")
@@ -110,7 +114,7 @@ shinyServer(function(input, output, session) {
       
     )
     if( add_NewDraw(inputDrawDF) ){
-      showNotification("Blood Draw Added", duration = 100, type = "success")
+      showNotification(paste("Blood Draw:",input$drawId_newDraw,"Successfully Added!"), duration = 100, type = "default")
     } else {
       showNotification("Error: Blood Draw did not sucessfully record in db.", duration = 100, type = "error")
     }
@@ -141,6 +145,13 @@ shinyServer(function(input, output, session) {
   output$newFreezer_moveBox <- renderUI({
     selectInput("newFreezer_moveBox", label = "Freezer:", choices = freezerNameList)
   })
+  
+  
+  ###################################################
+  #####    Home Page - New Diagnosis Module     #####
+  ###################################################
+  
+  
   
   
   
