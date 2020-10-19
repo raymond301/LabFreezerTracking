@@ -28,7 +28,15 @@ shinyServer(function(input, output, session) {
   observeEvent(input$changeDataInfo, {
     shinydashboard::updateTabItems(session, "explorertabs", "datainfo")
   })
-  
+  output$downloadData <- downloadHandler(
+    filename = function() {
+      paste("sqlite", "zip", sep=".")
+    },
+    content = function(fname) {
+      zip(zipfile=fname, files="data/storagedata.db")
+    },
+    contentType = "application/zip"
+  )
   
   
   ###################################################
@@ -46,8 +54,15 @@ shinyServer(function(input, output, session) {
     updateTextAreaInput(session, "comments_newPatient", value = "")
   }
   
-  observeEvent(input$submit_newPatient, {
+  output$newPatientDiagnosisSelect <- renderUI({
+    list <- rownames( get_allDiagnosis() )
+    names(list) <- get_allDiagnosis()$term
+    selectInput("patient_diagnosis", label = "Diagnosis:", choices = list)
+  })
+
+    observeEvent(input$submit_newPatient, {
     #adds a new patient to the database from form
+    diagTbl <- get_allDiagnosis()
     inputDF <- data.frame(
       record_id	= input$patient_clinicalid,
       secondary_id = input$patient_clinicalId2,
@@ -56,7 +71,11 @@ shinyServer(function(input, output, session) {
       last_name =	input$patient_lastname,
       first_name = input$patient_firstname,
       sex	= input$patient_gender,
-      date_of_birth = input$patient_birthdate
+      date_of_birth = input$patient_birthdate,
+      primary_diagnosis_descript = diagTbl[input$patient_diagnosis,]$term,
+      primary_diagnosis_codesour = diagTbl[input$patient_diagnosis,]$code_type,
+      primary_diagnosis_code = diagTbl[input$patient_diagnosis,]$code,
+      tumor_stage = input$patient_disease_stage
     )
     #Check to ensure entry goes into the database.
     if( create_Patient(inputDF) ){
@@ -151,12 +170,27 @@ shinyServer(function(input, output, session) {
   #####    Home Page - New Diagnosis Module     #####
   ###################################################
   
+  output$recentDiagnosisTable = renderDT(get_allDiagnosis(), selection = 'none', rownames = F, editable = F)
   
+  observeEvent(input$submit_dynamic_diagnosis, {
+    inputDF <- data.frame(
+      term = input$dynamic_diagnosis_term,
+      code_type = input$dynamic_diagnosis_codetype,
+      code = input$dynamic_diagnosis_code,
+      upload_date = format(Sys.time(), "%m/%d/%y")
+    )
+    if( add_NewDiagnosis(inputDF) ){
+      showNotification(paste("Diagnosis:",input$dynamic_diagnosis_term,"Successfully Added!"), duration = 100, type = "default")
+      updateTextInput(session, "dynamic_diagnosis_term", value = "")
+      updateTextInput(session, "dynamic_diagnosis_codetype", value = "")
+      updateTextInput(session, "dynamic_diagnosis_code", value = "")
+      output$recentDiagnosisTable = renderDT(get_allDiagnosis(), selection = 'none', rownames = F, editable = F)
+    } else {
+      showNotification("Error: Diagnosis did not sucessfully record in db.", duration = 100, type = "error")
+    }
+  })
   
-  
-  
-  
-  
+
   
   ###################################################
   #####             Freezer Page                #####
@@ -334,10 +368,7 @@ shinyServer(function(input, output, session) {
   
   
   observeEvent(input$Save_newBox, {
-    
-    
     inputDF <- data.frame(
-      
       rack <- input$rack_newBox,
       box <- input$name_newBox,
       box_type <- input$type_newBox,
@@ -345,7 +376,6 @@ shinyServer(function(input, output, session) {
       blood_draw_id <- "",
       status <- "Frozen",
       store_date <- 0
-      
     )
 
     ### please add "freezer_name"
@@ -369,18 +399,13 @@ shinyServer(function(input, output, session) {
     cat("\n")
 
     if(setequal(union(inputColumns, dbColumns), dbColumns)){
-      
       if(is_newBox(inputDF$rack, inputDF$box_type, inputDF$box)){
-        
         for(i in 1:100){
-          
           inputDF$slot <- i
           inputDF$blood_draw_id <- slotContents_newBox[i]
           inputDF$store_date <- as.numeric(storeDates_newBox[i])
-          
           newRow <- bind_rows(newRow, inputDF)
         }
-        
         add_NewBox(newRow)
         showNotification("Box Added", duration = 100, type = "message")
       }else{
@@ -392,10 +417,8 @@ shinyServer(function(input, output, session) {
   })
   
   observeEvent(input$Clear_newBox, {
-
     slotContents_newBox <<- vector(mode = "character", length = 100)
     storeDates_newBox <<- vector(mode = "character", length = 100)
-    
     for(i in 1:100){
       currSlot <- paste0("slot", i, "_newBox")
       updateActionButton(session, currSlot, label = i, icon(""))
@@ -440,7 +463,6 @@ shinyServer(function(input, output, session) {
                     backgroundColor <- "red"
                   }
                 }
-                
                 div(style = "display:inline-block; margin: 0px 0px -15px 0px; ",
                     list(
                       box(
@@ -468,49 +490,304 @@ shinyServer(function(input, output, session) {
   ####################################################
   # Return the UI for a modal dialog with data selection input. If 'failed' is
   # TRUE, then display a message that the previous value was invalid.
-  newDrawModal <- function(slt, name, slotObj, failed = FALSE) {
+  UpdatePullModal <- function(slt, name, slotObj, failed = FALSE) {
     modalDialog(
       fluidRow(
-        column(9, span(
-          h4(paste("Update record for Slot #",slt,":", name)),
-          style="color:#0BB815"))
-      ),
-      fluidRow(
-        column(4, paste("Status:",slotObj[1,]$status) ),
-        column(4, actionButton(paste0("pull_slot",slt), label = "Pull")
+        column(9, h3("Update this Record",style="color:#0BB798") )
         ),
-        column(4, )
-      ),
-      hr(),
-      fluidRow(
-        column(6, dateInput("draw_date","Date", format="mm/dd/yy")
+        fluidRow(
+          column(2, disabled(numericInput("updatepull_slot", "Slot", slt))),
+          column(4, disabled(textInput('updatepull_rack',"Rack", slotObj[1,]$rack)) ),
+          column(4, disabled(textInput('updatepull_box',"Box", paste(slotObj[1,]$box,'-',slotObj[1,]$box_type))) )
+        ),
+        fluidRow(
+          column(4, h4(paste('Sample:',name),style='margin-top: 25px') ),
+          column(4, selectInput('updatepull_slot_status', "Status", choices=c("Frozen","Pulled"), selected = slotObj[1,]$status )  ),
+          column(2, numericInput("updatepull_volume", "Amount (mL)", slotObj[1,]$frozen_volume) )
+        ),
+        hr(),
+        fluidRow(
+          column(4, dateInput("updatepull_store_date","Storage Date",slotObj[1,]$store_date, format="mm/dd/yyyy"), offset = 1 ),
+          column(4, dateInput("updatepull_pulled_date","Pulled Date",slotObj[1,]$pulled_date, format="mm/dd/yyyy"), offset = 1 )
+        ),
+        fluidRow(
+          column(10, offset = 1, textAreaInput("updatepull_frozen_comment",'Comments',slotObj[1,]$frozen_comment, width="100%"),
+                 hidden(numericInput("updatepull_slot_id", "", slotObj[1,]$id))
+          )
+        ),
+        if (failed)
+          div(tags$b("Error! Unable to update database", style = "color: red;")),
+        
+        footer = tagList(
+          modalButton("Cancel"),
+          actionButton("ok_updaterecord", "OK")
         )
-      ),
-      fluidRow(
-        column(4, h5('Amount (mL):')),
-        column(4, textInput("total_received_tube","#")
-        )
-      ),
-      fluidRow(
-        column(4, h5('Comments:')),
-        column(4, textInput("total_received_tube","#")
-        )
-      ),
-      if (failed)
-        div(tags$b("Error! Unable to update database", style = "color: red;")),
-      
-      footer = tagList(
-        modalButton("Cancel"),
-        actionButton("ok_drawrecord", "OK")
       )
-    )
   }
+  
+  observeEvent(input$ok_updaterecord, {
+    #print(input$updatepull_slot_id)
+    if( update_slot(input$updatepull_slot_id,input$updatepull_slot_status,input$updatepull_volume,input$updatepull_store_date,input$updatepull_pulled_date) ){
+      showNotification(paste("Slot:",input$updatepull_slot,"Successfully",input$updatepull_slot_status,"!"), duration = 100, type = "default")
+      removeModal()
+    } else {
+      showNotification("Error: Freezer Slot did not sucessfully record in db.", duration = 100, type = "error")
+      showModal(UpdatePullModal(failed = TRUE))
+    }
+    
+  })
+  
   
   observeEvent(input$slot1_updateBox, {
     label = getSamples_byLocation(input$rack_updateBox, input$box_updateBox, 1, input$type_updateBox)
     slObj = getSlot_byLocation(input$rack_updateBox, input$box_updateBox, 1, input$type_updateBox)
-    print(slObj)
-    showModal(newDrawModal(1, label, slObj))
+    showModal(UpdatePullModal(1, label, slObj))
   })
+  observeEvent(input$slot2_updateBox, {
+    label = getSamples_byLocation(input$rack_updateBox, input$box_updateBox, 2, input$type_updateBox)
+    slObj = getSlot_byLocation(input$rack_updateBox, input$box_updateBox, 2, input$type_updateBox)
+    showModal(UpdatePullModal(2, label, slObj))
+  })
+  observeEvent(input$slot3_updateBox, {
+    label = getSamples_byLocation(input$rack_updateBox, input$box_updateBox, 3, input$type_updateBox)
+    slObj = getSlot_byLocation(input$rack_updateBox, input$box_updateBox, 3, input$type_updateBox)
+    showModal(UpdatePullModal(3, label, slObj))
+  })
+  observeEvent(input$slot4_updateBox, {
+    label = getSamples_byLocation(input$rack_updateBox, input$box_updateBox, 4, input$type_updateBox)
+    slObj = getSlot_byLocation(input$rack_updateBox, input$box_updateBox, 4, input$type_updateBox)
+    showModal(UpdatePullModal(4, label, slObj))
+  })
+  observeEvent(input$slot5_updateBox, {
+    label = getSamples_byLocation(input$rack_updateBox, input$box_updateBox, 5, input$type_updateBox)
+    slObj = getSlot_byLocation(input$rack_updateBox, input$box_updateBox, 5, input$type_updateBox)
+    showModal(UpdatePullModal(5, label, slObj))
+  })
+  observeEvent(input$slot6_updateBox, {
+    label = getSamples_byLocation(input$rack_updateBox, input$box_updateBox, 6, input$type_updateBox)
+    slObj = getSlot_byLocation(input$rack_updateBox, input$box_updateBox, 6, input$type_updateBox)
+    showModal(UpdatePullModal(6, label, slObj))
+  })
+  observeEvent(input$slot7_updateBox, {
+    label = getSamples_byLocation(input$rack_updateBox, input$box_updateBox, 7, input$type_updateBox)
+    slObj = getSlot_byLocation(input$rack_updateBox, input$box_updateBox, 7, input$type_updateBox)
+    showModal(UpdatePullModal(7, label, slObj))
+  })
+  observeEvent(input$slot8_updateBox, {
+    label = getSamples_byLocation(input$rack_updateBox, input$box_updateBox, 8, input$type_updateBox)
+    slObj = getSlot_byLocation(input$rack_updateBox, input$box_updateBox, 8, input$type_updateBox)
+    showModal(UpdatePullModal(8, label, slObj))
+  })
+  observeEvent(input$slot9_updateBox, {
+    label = getSamples_byLocation(input$rack_updateBox, input$box_updateBox, 9, input$type_updateBox)
+    slObj = getSlot_byLocation(input$rack_updateBox, input$box_updateBox, 9, input$type_updateBox)
+    showModal(UpdatePullModal(9, label, slObj))
+  })
+  observeEvent(input$slot10_updateBox, {
+    label = getSamples_byLocation(input$rack_updateBox, input$box_updateBox, 10, input$type_updateBox)
+    slObj = getSlot_byLocation(input$rack_updateBox, input$box_updateBox, 10, input$type_updateBox)
+    showModal(UpdatePullModal(10, label, slObj))
+  })
+  observeEvent(input$slot11_updateBox, {
+    label = getSamples_byLocation(input$rack_updateBox, input$box_updateBox, 11, input$type_updateBox)
+    slObj = getSlot_byLocation(input$rack_updateBox, input$box_updateBox, 11, input$type_updateBox)
+    showModal(UpdatePullModal(11, label, slObj))
+  })
+  observeEvent(input$slot12_updateBox, {
+    label = getSamples_byLocation(input$rack_updateBox, input$box_updateBox, 12, input$type_updateBox)
+    slObj = getSlot_byLocation(input$rack_updateBox, input$box_updateBox, 12, input$type_updateBox)
+    showModal(UpdatePullModal(12, label, slObj))
+  })
+  observeEvent(input$slot13_updateBox, {
+    label = getSamples_byLocation(input$rack_updateBox, input$box_updateBox, 13, input$type_updateBox)
+    slObj = getSlot_byLocation(input$rack_updateBox, input$box_updateBox, 13, input$type_updateBox)
+    showModal(UpdatePullModal(13, label, slObj))
+  })
+  observeEvent(input$slot14_updateBox, {
+    label = getSamples_byLocation(input$rack_updateBox, input$box_updateBox, 14, input$type_updateBox)
+    slObj = getSlot_byLocation(input$rack_updateBox, input$box_updateBox, 14, input$type_updateBox)
+    showModal(UpdatePullModal(14, label, slObj))
+  })
+  observeEvent(input$slot15_updateBox, {
+    label = getSamples_byLocation(input$rack_updateBox, input$box_updateBox, 15, input$type_updateBox)
+    slObj = getSlot_byLocation(input$rack_updateBox, input$box_updateBox, 15, input$type_updateBox)
+    showModal(UpdatePullModal(15, label, slObj))
+  })
+  observeEvent(input$slot16_updateBox, {
+    label = getSamples_byLocation(input$rack_updateBox, input$box_updateBox, 16, input$type_updateBox)
+    slObj = getSlot_byLocation(input$rack_updateBox, input$box_updateBox, 16, input$type_updateBox)
+    showModal(UpdatePullModal(16, label, slObj))
+  })
+  observeEvent(input$slot17_updateBox, {
+    label = getSamples_byLocation(input$rack_updateBox, input$box_updateBox, 17, input$type_updateBox)
+    slObj = getSlot_byLocation(input$rack_updateBox, input$box_updateBox, 17, input$type_updateBox)
+    showModal(UpdatePullModal(17, label, slObj))
+  })
+  observeEvent(input$slot18_updateBox, {
+    label = getSamples_byLocation(input$rack_updateBox, input$box_updateBox, 18, input$type_updateBox)
+    slObj = getSlot_byLocation(input$rack_updateBox, input$box_updateBox, 18, input$type_updateBox)
+    showModal(UpdatePullModal(18, label, slObj))
+  })
+  observeEvent(input$slot19_updateBox, {
+    label = getSamples_byLocation(input$rack_updateBox, input$box_updateBox, 19, input$type_updateBox)
+    slObj = getSlot_byLocation(input$rack_updateBox, input$box_updateBox, 19, input$type_updateBox)
+    showModal(UpdatePullModal(19, label, slObj))
+  })
+  observeEvent(input$slot20_updateBox, {
+    label = getSamples_byLocation(input$rack_updateBox, input$box_updateBox, 20, input$type_updateBox)
+    slObj = getSlot_byLocation(input$rack_updateBox, input$box_updateBox, 20, input$type_updateBox)
+    showModal(UpdatePullModal(20, label, slObj))
+  })
+  observeEvent(input$slot21_updateBox, {
+    label = getSamples_byLocation(input$rack_updateBox, input$box_updateBox, 21, input$type_updateBox)
+    slObj = getSlot_byLocation(input$rack_updateBox, input$box_updateBox, 21, input$type_updateBox)
+    showModal(UpdatePullModal(21, label, slObj))
+  })
+  observeEvent(input$slot22_updateBox, {
+    label = getSamples_byLocation(input$rack_updateBox, input$box_updateBox, 22, input$type_updateBox)
+    slObj = getSlot_byLocation(input$rack_updateBox, input$box_updateBox, 22, input$type_updateBox)
+    showModal(UpdatePullModal(22, label, slObj))
+  })
+  observeEvent(input$slot23_updateBox, {
+    label = getSamples_byLocation(input$rack_updateBox, input$box_updateBox, 23, input$type_updateBox)
+    slObj = getSlot_byLocation(input$rack_updateBox, input$box_updateBox, 23, input$type_updateBox)
+    showModal(UpdatePullModal(23, label, slObj))
+  })
+  observeEvent(input$slot24_updateBox, {
+    label = getSamples_byLocation(input$rack_updateBox, input$box_updateBox, 24, input$type_updateBox)
+    slObj = getSlot_byLocation(input$rack_updateBox, input$box_updateBox, 24, input$type_updateBox)
+    showModal(UpdatePullModal(24, label, slObj))
+  })
+  observeEvent(input$slot25_updateBox, {
+    label = getSamples_byLocation(input$rack_updateBox, input$box_updateBox, 25, input$type_updateBox)
+    slObj = getSlot_byLocation(input$rack_updateBox, input$box_updateBox, 25, input$type_updateBox)
+    showModal(UpdatePullModal(25, label, slObj))
+  })
+  observeEvent(input$slot26_updateBox, {
+    label = getSamples_byLocation(input$rack_updateBox, input$box_updateBox, 26, input$type_updateBox)
+    slObj = getSlot_byLocation(input$rack_updateBox, input$box_updateBox, 26, input$type_updateBox)
+    showModal(UpdatePullModal(26, label, slObj))
+  })
+  observeEvent(input$slot27_updateBox, {
+    label = getSamples_byLocation(input$rack_updateBox, input$box_updateBox, 27, input$type_updateBox)
+    slObj = getSlot_byLocation(input$rack_updateBox, input$box_updateBox, 27, input$type_updateBox)
+    showModal(UpdatePullModal(27, label, slObj))
+  })
+  observeEvent(input$slot28_updateBox, {
+    label = getSamples_byLocation(input$rack_updateBox, input$box_updateBox, 28, input$type_updateBox)
+    slObj = getSlot_byLocation(input$rack_updateBox, input$box_updateBox, 28, input$type_updateBox)
+    showModal(UpdatePullModal(28, label, slObj))
+  })
+  observeEvent(input$slot29_updateBox, {
+    label = getSamples_byLocation(input$rack_updateBox, input$box_updateBox, 29, input$type_updateBox)
+    slObj = getSlot_byLocation(input$rack_updateBox, input$box_updateBox, 29, input$type_updateBox)
+    showModal(UpdatePullModal(29, label, slObj))
+  })
+  observeEvent(input$slot30_updateBox, {
+    label = getSamples_byLocation(input$rack_updateBox, input$box_updateBox, 30, input$type_updateBox)
+    slObj = getSlot_byLocation(input$rack_updateBox, input$box_updateBox, 30, input$type_updateBox)
+    showModal(UpdatePullModal(30, label, slObj))
+  })
+  observeEvent(input$slot31_updateBox, {
+    label = getSamples_byLocation(input$rack_updateBox, input$box_updateBox, 31, input$type_updateBox)
+    slObj = getSlot_byLocation(input$rack_updateBox, input$box_updateBox, 31, input$type_updateBox)
+    showModal(UpdatePullModal(31, label, slObj))
+  })
+  observeEvent(input$slot32_updateBox, {
+    label = getSamples_byLocation(input$rack_updateBox, input$box_updateBox, 32, input$type_updateBox)
+    slObj = getSlot_byLocation(input$rack_updateBox, input$box_updateBox, 32, input$type_updateBox)
+    showModal(UpdatePullModal(32, label, slObj))
+  })
+  observeEvent(input$slot33_updateBox, {
+    label = getSamples_byLocation(input$rack_updateBox, input$box_updateBox, 33, input$type_updateBox)
+    slObj = getSlot_byLocation(input$rack_updateBox, input$box_updateBox, 33, input$type_updateBox)
+    showModal(UpdatePullModal(33, label, slObj))
+  })
+  observeEvent(input$slot34_updateBox, {
+    label = getSamples_byLocation(input$rack_updateBox, input$box_updateBox, 34, input$type_updateBox)
+    slObj = getSlot_byLocation(input$rack_updateBox, input$box_updateBox, 34, input$type_updateBox)
+    showModal(UpdatePullModal(34, label, slObj))
+  })
+  observeEvent(input$slot35_updateBox, {
+    label = getSamples_byLocation(input$rack_updateBox, input$box_updateBox, 35, input$type_updateBox)
+    slObj = getSlot_byLocation(input$rack_updateBox, input$box_updateBox, 35, input$type_updateBox)
+    showModal(UpdatePullModal(35, label, slObj))
+  })
+  observeEvent(input$slot36_updateBox, {
+    label = getSamples_byLocation(input$rack_updateBox, input$box_updateBox, 36, input$type_updateBox)
+    slObj = getSlot_byLocation(input$rack_updateBox, input$box_updateBox, 36, input$type_updateBox)
+    showModal(UpdatePullModal(36, label, slObj))
+  })
+  observeEvent(input$slot37_updateBox, {
+    label = getSamples_byLocation(input$rack_updateBox, input$box_updateBox, 37, input$type_updateBox)
+    slObj = getSlot_byLocation(input$rack_updateBox, input$box_updateBox, 37, input$type_updateBox)
+    showModal(UpdatePullModal(37, label, slObj))
+  })
+  observeEvent(input$slot38_updateBox, {
+    label = getSamples_byLocation(input$rack_updateBox, input$box_updateBox, 38, input$type_updateBox)
+    slObj = getSlot_byLocation(input$rack_updateBox, input$box_updateBox, 38, input$type_updateBox)
+    showModal(UpdatePullModal(38, label, slObj))
+  })
+  observeEvent(input$slot39_updateBox, {
+    label = getSamples_byLocation(input$rack_updateBox, input$box_updateBox, 39, input$type_updateBox)
+    slObj = getSlot_byLocation(input$rack_updateBox, input$box_updateBox, 39, input$type_updateBox)
+    showModal(UpdatePullModal(39, label, slObj))
+  })
+  observeEvent(input$slot40_updateBox, {
+    label = getSamples_byLocation(input$rack_updateBox, input$box_updateBox, 40, input$type_updateBox)
+    slObj = getSlot_byLocation(input$rack_updateBox, input$box_updateBox, 40, input$type_updateBox)
+    showModal(UpdatePullModal(40, label, slObj))
+  })
+  observeEvent(input$slot41_updateBox, {
+    label = getSamples_byLocation(input$rack_updateBox, input$box_updateBox, 41, input$type_updateBox)
+    slObj = getSlot_byLocation(input$rack_updateBox, input$box_updateBox, 41, input$type_updateBox)
+    showModal(UpdatePullModal(41, label, slObj))
+  })
+  observeEvent(input$slot42_updateBox, {
+    label = getSamples_byLocation(input$rack_updateBox, input$box_updateBox, 42, input$type_updateBox)
+    slObj = getSlot_byLocation(input$rack_updateBox, input$box_updateBox, 42, input$type_updateBox)
+    showModal(UpdatePullModal(42, label, slObj))
+  })
+  observeEvent(input$slot43_updateBox, {
+    label = getSamples_byLocation(input$rack_updateBox, input$box_updateBox, 43, input$type_updateBox)
+    slObj = getSlot_byLocation(input$rack_updateBox, input$box_updateBox, 43, input$type_updateBox)
+    showModal(UpdatePullModal(43, label, slObj))
+  })
+  observeEvent(input$slot44_updateBox, {
+    label = getSamples_byLocation(input$rack_updateBox, input$box_updateBox, 44, input$type_updateBox)
+    slObj = getSlot_byLocation(input$rack_updateBox, input$box_updateBox, 44, input$type_updateBox)
+    showModal(UpdatePullModal(44, label, slObj))
+  })
+  observeEvent(input$slot45_updateBox, {
+    label = getSamples_byLocation(input$rack_updateBox, input$box_updateBox, 45, input$type_updateBox)
+    slObj = getSlot_byLocation(input$rack_updateBox, input$box_updateBox, 45, input$type_updateBox)
+    showModal(UpdatePullModal(45, label, slObj))
+  })
+  observeEvent(input$slot46_updateBox, {
+    label = getSamples_byLocation(input$rack_updateBox, input$box_updateBox, 46, input$type_updateBox)
+    slObj = getSlot_byLocation(input$rack_updateBox, input$box_updateBox, 46, input$type_updateBox)
+    showModal(UpdatePullModal(46, label, slObj))
+  })
+  observeEvent(input$slot47_updateBox, {
+    label = getSamples_byLocation(input$rack_updateBox, input$box_updateBox, 47, input$type_updateBox)
+    slObj = getSlot_byLocation(input$rack_updateBox, input$box_updateBox, 47, input$type_updateBox)
+    showModal(UpdatePullModal(47, label, slObj))
+  })
+  observeEvent(input$slot48_updateBox, {
+    label = getSamples_byLocation(input$rack_updateBox, input$box_updateBox, 48, input$type_updateBox)
+    slObj = getSlot_byLocation(input$rack_updateBox, input$box_updateBox, 48, input$type_updateBox)
+    showModal(UpdatePullModal(48, label, slObj))
+  })
+  observeEvent(input$slot49_updateBox, {
+    label = getSamples_byLocation(input$rack_updateBox, input$box_updateBox, 49, input$type_updateBox)
+    slObj = getSlot_byLocation(input$rack_updateBox, input$box_updateBox, 49, input$type_updateBox)
+    showModal(UpdatePullModal(49, label, slObj))
+  })
+  observeEvent(input$slot50_updateBox, {
+    label = getSamples_byLocation(input$rack_updateBox, input$box_updateBox, 50, input$type_updateBox)
+    slObj = getSlot_byLocation(input$rack_updateBox, input$box_updateBox, 50, input$type_updateBox)
+    showModal(UpdatePullModal(50, label, slObj))
+  })
+  
   
 })

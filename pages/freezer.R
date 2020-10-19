@@ -24,7 +24,6 @@ freezerpage <- dashboardPage(
     tabsetPanel(id="freezertabs",
                 tabPanel("Find",  value='freezer_tab1',
                          h2(paste("Existing Freezer Data")),
-                         #h3(textOutput("current_study")),
                          hr(),
                          # Tree of boxes
                          uiOutput('freezer_rack_tree')
@@ -32,8 +31,6 @@ freezerpage <- dashboardPage(
                          ),
                 tabPanel("Create New Box",  value='freezer_tab2',
                          h4("Create a new Freezer Box"),
-                         #h4(textOutput("current_study2")),
-                         
                          fluidRow(
                            box(
                              width = 2,

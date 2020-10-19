@@ -30,7 +30,8 @@ homepage <- dashboardPage(
                  icon = icon("cog")
                )
       ),
-      shiny::hr()
+      shiny::hr(),
+      downloadLink('downloadData', '...')
     )
   ),
   dashboardBody(
@@ -85,7 +86,32 @@ homepage <- dashboardPage(
       tabItem(
         tabName = "task_4",
         fluidPage(
+          h3("View/Search Diagnoses Options"),
+          DTOutput('recentDiagnosisTable'),
+          br(),
           h3("Add New Diagnosis Dynamically"),
+          box(
+            width = 12,
+            background = "blue",
+            fluidRow(
+              box(
+                width = 6,
+                background = "blue",
+                textInput(inputId = "dynamic_diagnosis_term", label = "Description", placeholder = ""),
+              ),
+              box(
+                width = 3,
+                background = "blue",
+                textInput(inputId = "dynamic_diagnosis_codetype", label = "Code System", placeholder = "ICD-10/Mesh/Other"),
+              ),
+              box(
+                width = 3,
+                background = "blue",
+                textInput(inputId = "dynamic_diagnosis_code", label = "Code", placeholder = "010101"),
+              )
+            )
+          ),
+          actionButton(inputId = "submit_dynamic_diagnosis", label = "Submit")
         )
       ),
       

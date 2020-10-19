@@ -8,6 +8,7 @@ library(RSQLite)
 library(RCurl)
 options(RCurlOptions = list(ssl.verifypeer = FALSE))
 library(jsonlite)
+library(DT)
 
 ### This lib was previously in CRAN, but for now, must be installed by dev.
 if("dqshiny" %in% rownames(installed.packages()) == FALSE) {remotes::install_github("daqana/dqshiny")}

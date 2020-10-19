@@ -61,9 +61,9 @@ getSamples_byLocation <- function(rid, bid, sid, tid){
 getStatus_byLocation <- function(rid, bid, sid, tid){
   return( dbGetQuery(fCon, paste0("SELECT DISTINCT status FROM freezer_slot WHERE rack = \"",rid,"\" AND box = \"",bid,"\" AND slot = \"",sid,"\" AND box_type = \"",tid,"\";")) )
 }
-#getTypes_byLocation <- function(rid, bid){
-#  return( dbGetQuery(fCon, paste0("SELECT box_type FROM freezer_slot WHERE rack = \"",rid,"\" AND box = \"",bid,"\";")) )
-#}
+getTypes_byLocation <- function(rid, bid){
+  return( dbGetQuery(fCon, paste0("SELECT box_type FROM freezer_slot WHERE rack = \"",rid,"\" AND box = \"",bid,"\";")) )
+}
 getSlot_byLocation <- function(rid, bid, sid, tid){
   return( dbGetQuery(fCon, paste0("SELECT * FROM freezer_slot WHERE rack = \"",rid,"\" AND box = \"",bid,"\" AND slot = \"",sid,"\" AND box_type = \"",tid,"\";")) )
 }
@@ -71,8 +71,6 @@ getSlot_byLocation <- function(rid, bid, sid, tid){
 getEntireRack_byIDs <- function(fid, rid){
   return( dbGetQuery(fCon, paste0("SELECT * FROM freezer_slot WHERE freezer_name = \"",fid,"\" AND rack = \"",rid,"\"")) )
 }
-
-
 
 ######### Lookup Table for Dynamic Diagnosis Labels ############
 
@@ -84,6 +82,19 @@ get_allDiagnosis <- function(){
   return(dbGetQuery(fCon,"SELECT term,code_type,code FROM diagnosis"))
 }
 
+
+##### Submit Change to Database ##### 
+
+update_slot <- function(id, status, vol, stored, pulled){
+  #sFmt = as.character(format(stored, "%m/%d/%Y")) # Already formatted in input field
+  if(status == "Frozen"){
+    sql <- paste0("UPDATE freezer_slot SET status = '",status,"', frozen_volume = '",vol,"', store_date = '",stored,"' WHERE id = ",id,";")
+  } else {
+    #pFmt = as.character(format(pulled, "%m/%d/%Y"))
+    sql <- paste0("UPDATE freezer_slot SET status = '",status,"', frozen_volume = '",vol,"', store_date = '",stored,"', pulled_date = '",pulled,"' WHERE id = ",id,";")
+  }
+  return(dbExecute(fCon, sql))
+}
 
 # get a list of all tables inside this dataabase
 # dbListTables(con)

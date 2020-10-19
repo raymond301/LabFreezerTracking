@@ -4,7 +4,6 @@ newPatientForm <- function(id) {
     tabName = "task_1",
     fluidPage(
       h3("Add New Patient"),
-      #renderUI(test1),
       box(
         width = 12,
         background = "blue",
@@ -68,6 +67,18 @@ newPatientForm <- function(id) {
             textAreaInput(inputId = "comments_newPatient", label = "Comments (optional)", rows = 2,
                           placeholder = "Add additional comments...")
             
+          )
+        ),
+        fluidRow(
+          box(
+            width = 6,
+            background = "blue",
+            uiOutput("newPatientDiagnosisSelect")
+          ),
+          box( 
+            width = 4,
+            background = "blue",
+            selectInput("patient_disease_stage", label = "Progression:", choices = c("","Stage 1","Stage 1/2","Stage 2","Stage 2/3","Stage 3","Stage 3/4","Stage 4") )
           )
         ),
         actionButton(inputId = "submit_newPatient", label = "Submit"),
